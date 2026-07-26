@@ -7,6 +7,15 @@ name = "helion-ast"
 version = "0.1.0"
 
 [[package]]
+name = "helion-interpreter"
+version = "0.1.0"
+dependencies = [
+ "helion-ast",
+ "helion-parser",
+ "thiserror",
+]
+
+[[package]]
 name = "helion-lexer"
 version = "0.1.0"
 dependencies = [
@@ -18,6 +27,7 @@ name = "helion-lexer-demo"
 version = "0.1.0"
 dependencies = [
  "helion-ast",
+ "helion-interpreter",
  "helion-lexer",
  "helion-parser",
  "thiserror",

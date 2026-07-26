@@ -1,15 +1,321 @@
-   0.258098900s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint: dependency on `helion_ast` is newer than we are 13429582067.062778900s > 13429581748.620571100s "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-parser"
-   0.258970400s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint: dependency on `helion_ast` is newer than we are 13429582067.062778900s > 13429581750.354034600s "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer-demo"
-   0.259621100s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint: fingerprint dirty for helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo)/Check { test: false }/TargetInner { name: "helion-lexer-demo", doc: true, ..: with_path("C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer-demo\\src\\main.rs", Edition2021) }
-   0.259724100s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { unit: UnitIndex(0), dep_mtime: FileTime { seconds: 13429582067, nanos: 62778900 }, max_mtime: FileTime { seconds: 13429581750, nanos: 354034600 } })
-   0.262171000s  INFO prepare_target{force=false package_id=helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser) target="helion_parser"}: cargo::core::compiler::fingerprint: fingerprint dirty for helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("helion_parser", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-parser\\src\\lib.rs", Edition2021) }
-   0.262251800s  INFO prepare_target{force=false package_id=helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser) target="helion_parser"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { unit: UnitIndex(0), dep_mtime: FileTime { seconds: 13429582067, nanos: 62778900 }, max_mtime: FileTime { seconds: 13429581748, nanos: 620571100 } })
-   0.264903900s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint: dependency on `helion_ast` is newer than we are 13429582067.062778900s > 13429581750.359746300s "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer-demo"
-   0.265573900s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint: fingerprint dirty for helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo)/Check { test: true }/TargetInner { name: "helion-lexer-demo", doc: true, ..: with_path("C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer-demo\\src\\main.rs", Edition2021) }
-   0.265652900s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { unit: UnitIndex(0), dep_mtime: FileTime { seconds: 13429582067, nanos: 62778900 }, max_mtime: FileTime { seconds: 13429581750, nanos: 359746300 } })
-   0.268900100s  INFO prepare_target{force=false package_id=helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser) target="helion_parser"}: cargo::core::compiler::fingerprint: dependency on `helion_ast` is newer than we are 13429582067.062778900s > 13429581748.622588400s "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-parser"
-   0.269536900s  INFO prepare_target{force=false package_id=helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser) target="helion_parser"}: cargo::core::compiler::fingerprint: fingerprint dirty for helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("helion_parser", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-parser\\src\\lib.rs", Edition2021) }
-   0.269600500s  INFO prepare_target{force=false package_id=helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser) target="helion_parser"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { unit: UnitIndex(0), dep_mtime: FileTime { seconds: 13429582067, nanos: 62778900 }, max_mtime: FileTime { seconds: 13429581748, nanos: 622588400 } })
+   0.211276500s  INFO prepare_target{force=false package_id=helion-ast v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-ast) target="helion_ast"}: cargo::core::compiler::fingerprint: fingerprint error for helion-ast v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-ast)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("helion_ast", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-ast\\src\\lib.rs", Edition2021) }
+   0.211397000s  INFO prepare_target{force=false package_id=helion-ast v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-ast) target="helion_ast"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-ast-9639ea06e9e46509\lib-helion_ast`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_repo
+   6: git_filter_source_repo
+   7: git_filter_source_repo
+   8: git_filter_source_repo
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_libgit2_prerelease
+  12: <unknown>
+  13: <unknown>
+  14: <unknown>
+  15: <unknown>
+  16: git_midx_writer_dump
+  17: git_filter_source_repo
+  18: git_midx_writer_dump
+  19: BaseThreadInitThunk
+  20: RtlUserThreadStart
+   0.235171300s  INFO prepare_target{force=false package_id=helion-ast v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-ast) target="helion_ast"}: cargo::core::compiler::fingerprint: fingerprint error for helion-ast v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-ast)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("helion_ast", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-ast\\src\\lib.rs", Edition2021) }
+   0.235214300s  INFO prepare_target{force=false package_id=helion-ast v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-ast) target="helion_ast"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-ast-b925a9869486c252\test-lib-helion_ast`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_repo
+   6: git_filter_source_repo
+   7: git_filter_source_repo
+   8: git_filter_source_repo
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_libgit2_prerelease
+  12: <unknown>
+  13: <unknown>
+  14: <unknown>
+  15: <unknown>
+  16: git_midx_writer_dump
+  17: git_filter_source_repo
+  18: git_midx_writer_dump
+  19: BaseThreadInitThunk
+  20: RtlUserThreadStart
+   0.244938600s  INFO prepare_target{force=false package_id=helion-interpreter v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-interpreter) target="helion_interpreter"}: cargo::core::compiler::fingerprint: fingerprint error for helion-interpreter v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-interpreter)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("helion_interpreter", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-interpreter\\src\\lib.rs", Edition2021) }
+   0.244992000s  INFO prepare_target{force=false package_id=helion-interpreter v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-interpreter) target="helion_interpreter"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-interpreter-69c3361d900368bb\lib-helion_interpreter`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_repo
+   6: git_filter_source_repo
+   7: git_filter_source_repo
+   8: git_filter_source_repo
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_libgit2_prerelease
+  12: <unknown>
+  13: <unknown>
+  14: <unknown>
+  15: <unknown>
+  16: git_midx_writer_dump
+  17: git_filter_source_repo
+  18: git_midx_writer_dump
+  19: BaseThreadInitThunk
+  20: RtlUserThreadStart
+   0.246726800s  INFO prepare_target{force=false package_id=helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser) target="helion_parser"}: cargo::core::compiler::fingerprint: fingerprint error for helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("helion_parser", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-parser\\src\\lib.rs", Edition2021) }
+   0.246828900s  INFO prepare_target{force=false package_id=helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser) target="helion_parser"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-parser-b91fa79e82ab2027\lib-helion_parser`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_repo
+   6: git_filter_source_repo
+   7: git_filter_source_repo
+   8: git_filter_source_repo
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_filter_source_repo
+  12: git_libgit2_prerelease
+  13: <unknown>
+  14: <unknown>
+  15: <unknown>
+  16: <unknown>
+  17: git_midx_writer_dump
+  18: git_filter_source_repo
+  19: git_midx_writer_dump
+  20: BaseThreadInitThunk
+  21: RtlUserThreadStart
+   0.248234600s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint: fingerprint error for helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("helion_lexer", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer\\src\\lib.rs", Edition2021) }
+   0.248290900s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-lexer-144f0618478dadd2\lib-helion_lexer`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_repo
+   6: git_filter_source_repo
+   7: git_filter_source_repo
+   8: git_filter_source_repo
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_filter_source_repo
+  12: git_filter_source_repo
+  13: git_libgit2_prerelease
+  14: <unknown>
+  15: <unknown>
+  16: <unknown>
+  17: <unknown>
+  18: git_midx_writer_dump
+  19: git_filter_source_repo
+  20: git_midx_writer_dump
+  21: BaseThreadInitThunk
+  22: RtlUserThreadStart
+   0.249472700s  INFO prepare_target{force=false package_id=thiserror v1.0.69 target="thiserror"}: cargo::core::compiler::fingerprint: fingerprint error for thiserror v1.0.69/Check { test: false }/TargetInner { ..: lib_target("thiserror", ["lib"], "C:\\Users\\chall\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\thiserror-1.0.69\\src\\lib.rs", Edition2021) }
+   0.249524200s  INFO prepare_target{force=false package_id=thiserror v1.0.69 target="thiserror"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\thiserror-1eb1e40d279241ce\lib-thiserror`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_repo
+   6: git_filter_source_repo
+   7: git_filter_source_repo
+   8: git_filter_source_repo
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_filter_source_repo
+  12: git_filter_source_repo
+  13: git_filter_source_repo
+  14: git_libgit2_prerelease
+  15: <unknown>
+  16: <unknown>
+  17: <unknown>
+  18: <unknown>
+  19: git_midx_writer_dump
+  20: git_filter_source_repo
+  21: git_midx_writer_dump
+  22: BaseThreadInitThunk
+  23: RtlUserThreadStart
+   0.262404500s  INFO prepare_target{force=false package_id=helion-interpreter v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-interpreter) target="helion_interpreter"}: cargo::core::compiler::fingerprint: fingerprint error for helion-interpreter v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-interpreter)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("helion_interpreter", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-interpreter\\src\\lib.rs", Edition2021) }
+   0.262448600s  INFO prepare_target{force=false package_id=helion-interpreter v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-interpreter) target="helion_interpreter"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-interpreter-5acd2e5723bc99c4\test-lib-helion_interpreter`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_repo
+   6: git_filter_source_repo
+   7: git_filter_source_repo
+   8: git_filter_source_repo
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_libgit2_prerelease
+  12: <unknown>
+  13: <unknown>
+  14: <unknown>
+  15: <unknown>
+  16: git_midx_writer_dump
+  17: git_filter_source_repo
+  18: git_midx_writer_dump
+  19: BaseThreadInitThunk
+  20: RtlUserThreadStart
+   0.263956900s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint: fingerprint error for helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("helion_lexer", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer\\src\\lib.rs", Edition2021) }
+   0.263997800s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-lexer-436062d2e972fb74\test-lib-helion_lexer`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_repo
+   6: git_filter_source_repo
+   7: git_filter_source_repo
+   8: git_filter_source_repo
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_libgit2_prerelease
+  12: <unknown>
+  13: <unknown>
+  14: <unknown>
+  15: <unknown>
+  16: git_midx_writer_dump
+  17: git_filter_source_repo
+  18: git_midx_writer_dump
+  19: BaseThreadInitThunk
+  20: RtlUserThreadStart
+   0.265491700s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint: fingerprint error for helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo)/Check { test: false }/TargetInner { name: "helion-lexer-demo", doc: true, ..: with_path("C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer-demo\\src\\main.rs", Edition2021) }
+   0.265555700s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-lexer-demo-c99d1a72ad6825e4\bin-helion-lexer-demo`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_repo
+   6: git_filter_source_repo
+   7: git_filter_source_repo
+   8: git_filter_source_repo
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_libgit2_prerelease
+  12: <unknown>
+  13: <unknown>
+  14: <unknown>
+  15: <unknown>
+  16: git_midx_writer_dump
+  17: git_filter_source_repo
+  18: git_midx_writer_dump
+  19: BaseThreadInitThunk
+  20: RtlUserThreadStart
+   0.266977500s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint: fingerprint error for helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo)/Check { test: true }/TargetInner { name: "helion-lexer-demo", doc: true, ..: with_path("C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer-demo\\src\\main.rs", Edition2021) }
+   0.267023600s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-lexer-demo-0eafb8df565d5208\test-bin-helion-lexer-demo`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_repo
+   6: git_filter_source_repo
+   7: git_filter_source_repo
+   8: git_filter_source_repo
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_libgit2_prerelease
+  12: <unknown>
+  13: <unknown>
+  14: <unknown>
+  15: <unknown>
+  16: git_midx_writer_dump
+  17: git_filter_source_repo
+  18: git_midx_writer_dump
+  19: BaseThreadInitThunk
+  20: RtlUserThreadStart
+   0.269173500s  INFO prepare_target{force=false package_id=helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser) target="helion_parser"}: cargo::core::compiler::fingerprint: fingerprint error for helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("helion_parser", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-parser\\src\\lib.rs", Edition2021) }
+   0.269246100s  INFO prepare_target{force=false package_id=helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser) target="helion_parser"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-parser-01a650c41f4bad59\test-lib-helion_parser`
+
+Caused by:
+    The system cannot find the file specified. (os error 2)
+
+Stack backtrace:
+   0: git_midx_writer_dump
+   1: git_midx_writer_dump
+   2: git_midx_writer_dump
+   3: git_midx_writer_dump
+   4: git_filter_source_repo
+   5: git_filter_source_repo
+   6: git_filter_source_repo
+   7: git_filter_source_repo
+   8: git_filter_source_repo
+   9: git_filter_source_repo
+  10: git_filter_source_repo
+  11: git_libgit2_prerelease
+  12: <unknown>
+  13: <unknown>
+  14: <unknown>
+  15: <unknown>
+  16: git_midx_writer_dump
+  17: git_filter_source_repo
+  18: git_midx_writer_dump
+  19: BaseThreadInitThunk
+  20: RtlUserThreadStart
+    Checking helion-ast v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-ast)
+    Checking thiserror v1.0.69
+    Checking helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer)
     Checking helion-parser v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-parser)
+    Checking helion-interpreter v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-interpreter)
     Checking helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.11s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.77s

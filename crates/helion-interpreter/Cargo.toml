@@ -1,0 +1,9 @@
+[package]
+name = "helion-interpreter"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+helion-ast     = { path = "../helion-ast" }
+helion-parser  = { path = "../helion-parser" }
+thiserror      = "1.0"

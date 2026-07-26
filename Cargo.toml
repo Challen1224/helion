@@ -2,7 +2,8 @@
 resolver = "2"
 members = [
     "crates/helion-lexer",
-    "crates/helion-lexer-demo",
-    "crates/helion-ast",
     "crates/helion-parser",
+    "crates/helion-ast",
+    "crates/helion-interpreter",
+    "crates/helion-lexer-demo"
 ]

@@ -1,17 +1,16 @@
 use helion_parser::Parser;
+use helion_interpreter::Interpreter;
 use std::io::{self, Read};
 
 fn main() {
     let mut src = String::new();
     io::stdin().read_to_string(&mut src).unwrap();
 
-    match Parser::new(&src) {
-        Ok(mut parser) => match parser.parse_program() {
-            Ok(program) => {
-                println!("{:#?}", program);
-            }
-            Err(e) => eprintln!("Parse error: {e}"),
-        },
-        Err(e) => eprintln!("Init error: {e}"),
-    }
+    let mut parser = Parser::new(&src).unwrap();
+    let program = parser.parse_program().unwrap();
+
+    let interp = Interpreter;
+    let result = interp.run(&program).unwrap();
+
+    println!("Result: {:?}", result);
 }

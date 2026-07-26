@@ -1,5 +1,5 @@
 ﻿fn main {
-    let x = 1 + 2 * 3
-    let y = (x + 10) / 2
+    let x = 10
+    let y = x * 2 + 5
     return y
 }
