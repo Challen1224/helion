@@ -1,14 +1,31 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+#[derive(Debug)]
+pub enum Expr {
+    Ident(String),
+    Number(f64),
+    Binary {
+        left: Box<Expr>,
+        op: BinaryOp,
+        right: Box<Expr>,
+    },
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#[derive(Debug)]
+pub enum BinaryOp {
+    Plus,
+}
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+#[derive(Debug)]
+pub enum Stmt {
+    Let {
+        name: String,
+        value: Expr,
+    },
+    Return {
+        value: Expr,
+    },
+}
+
+#[derive(Debug)]
+pub struct Program {
+    pub stmts: Vec<Stmt>,
 }

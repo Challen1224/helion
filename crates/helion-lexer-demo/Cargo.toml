@@ -4,4 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-helion-lexer = { path = "../helion-lexer" }
+helion-lexer   = { path = "../helion-lexer" }
+helion-parser  = { path = "../helion-parser" }
+helion-ast     = { path = "../helion-ast" }
+thiserror      = "1.0"

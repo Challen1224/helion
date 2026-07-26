@@ -1,8 +1,3 @@
-﻿// single line comment
-let x = 42
-
-/* multi
-   line
-   comment */
-let msg = "hello"
-return msg
+﻿let x = 42
+let y = x + 1
+return y + 2
