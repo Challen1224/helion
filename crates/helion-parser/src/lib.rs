@@ -64,7 +64,6 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_let(&mut self) -> Result<Stmt, ParseError> {
-        // let <ident> = <expr>
         self.advance()?; // consume 'let'
 
         let name = match &self.current.kind {
@@ -90,30 +89,171 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_return(&mut self) -> Result<Stmt, ParseError> {
-        // return <expr>
         self.advance()?; // consume 'return'
         let value = self.parse_expr()?;
         Ok(Stmt::Return { value })
     }
 
-    fn parse_expr(&mut self) -> Result<Expr, ParseError> {
-        self.parse_binary()
+    // -----------------------------
+    // Expression parsing (full)
+    // -----------------------------
+
+    pub fn parse_expr(&mut self) -> Result<Expr, ParseError> {
+        self.parse_equality()
     }
 
-    fn parse_binary(&mut self) -> Result<Expr, ParseError> {
-        let mut left = self.parse_primary()?;
+    fn parse_equality(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.parse_comparison()?;
 
-        while let TokenKind::Plus = self.current.kind {
-            self.advance()?; // consume '+'
-            let right = self.parse_primary()?;
-            left = Expr::Binary {
-                left: Box::new(left),
-                op: BinaryOp::Plus,
-                right: Box::new(right),
-            };
+        loop {
+            match self.current.kind {
+                TokenKind::EqualEqual => {
+                    self.advance()?;
+                    let right = self.parse_comparison()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        op: BinaryOp::EqualEqual,
+                        right: Box::new(right),
+                    };
+                }
+                TokenKind::BangEqual => {
+                    self.advance()?;
+                    let right = self.parse_comparison()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        op: BinaryOp::BangEqual,
+                        right: Box::new(right),
+                    };
+                }
+                _ => break,
+            }
         }
 
-        Ok(left)
+        Ok(expr)
+    }
+
+    fn parse_comparison(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.parse_additive()?;
+
+        loop {
+            match self.current.kind {
+                TokenKind::Less => {
+                    self.advance()?;
+                    let right = self.parse_additive()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        op: BinaryOp::Less,
+                        right: Box::new(right),
+                    };
+                }
+                TokenKind::LessEqual => {
+                    self.advance()?;
+                    let right = self.parse_additive()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        op: BinaryOp::LessEqual,
+                        right: Box::new(right),
+                    };
+                }
+                TokenKind::Greater => {
+                    self.advance()?;
+                    let right = self.parse_additive()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        op: BinaryOp::Greater,
+                        right: Box::new(right),
+                    };
+                }
+                TokenKind::GreaterEqual => {
+                    self.advance()?;
+                    let right = self.parse_additive()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        op: BinaryOp::GreaterEqual,
+                        right: Box::new(right),
+                    };
+                }
+                _ => break,
+            }
+        }
+
+        Ok(expr)
+    }
+
+    fn parse_additive(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.parse_multiplicative()?;
+
+        loop {
+            match self.current.kind {
+                TokenKind::Plus => {
+                    self.advance()?;
+                    let right = self.parse_multiplicative()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        op: BinaryOp::Plus,
+                        right: Box::new(right),
+                    };
+                }
+                TokenKind::Minus => {
+                    self.advance()?;
+                    let right = self.parse_multiplicative()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        op: BinaryOp::Minus,
+                        right: Box::new(right),
+                    };
+                }
+                _ => break,
+            }
+        }
+
+        Ok(expr)
+    }
+
+    fn parse_multiplicative(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.parse_unary()?;
+
+        loop {
+            match self.current.kind {
+                TokenKind::Star => {
+                    self.advance()?;
+                    let right = self.parse_unary()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        op: BinaryOp::Star,
+                        right: Box::new(right),
+                    };
+                }
+                TokenKind::Slash => {
+                    self.advance()?;
+                    let right = self.parse_unary()?;
+                    expr = Expr::Binary {
+                        left: Box::new(expr),
+                        op: BinaryOp::Slash,
+                        right: Box::new(right),
+                    };
+                }
+                _ => break,
+            }
+        }
+
+        Ok(expr)
+    }
+
+    fn parse_unary(&mut self) -> Result<Expr, ParseError> {
+        match self.current.kind {
+            TokenKind::Minus => {
+                self.advance()?;
+                let right = self.parse_unary()?;
+                Ok(Expr::UnaryMinus(Box::new(right)))
+            }
+            TokenKind::Bang => {
+                self.advance()?;
+                let right = self.parse_unary()?;
+                Ok(Expr::UnaryBang(Box::new(right)))
+            }
+            _ => self.parse_primary(),
+        }
     }
 
     fn parse_primary(&mut self) -> Result<Expr, ParseError> {
@@ -127,6 +267,11 @@ impl<'a> Parser<'a> {
                 let v = *n;
                 self.advance()?;
                 Ok(Expr::Number(v))
+            }
+            TokenKind::String(s) => {
+                let v = s.clone();
+                self.advance()?;
+                Ok(Expr::String(v))
             }
             TokenKind::LParen => {
                 self.advance()?;

@@ -2,6 +2,11 @@
 pub enum Expr {
     Ident(String),
     Number(f64),
+    String(String),
+
+    UnaryMinus(Box<Expr>),
+    UnaryBang(Box<Expr>),
+
     Binary {
         left: Box<Expr>,
         op: BinaryOp,
@@ -11,7 +16,21 @@ pub enum Expr {
 
 #[derive(Debug)]
 pub enum BinaryOp {
+    // Arithmetic
     Plus,
+    Minus,
+    Star,
+    Slash,
+
+    // Comparison
+    Less,
+    LessEqual,
+    Greater,
+    GreaterEqual,
+
+    // Equality
+    EqualEqual,
+    BangEqual,
 }
 
 #[derive(Debug)]
