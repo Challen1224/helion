@@ -8,6 +8,9 @@ pub enum LexError {
 
     #[error("Invalid number literal at {line}:{column}")]
     InvalidNumber { line: usize, column: usize },
+
+    #[error("Unterminated string literal at {line}:{column}")]
+    UnterminatedString { line: usize, column: usize },
 }
 
 pub struct Lexer<'a> {
@@ -166,6 +169,61 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    fn lex_string(&mut self) -> Result<Token, LexError> {
+        let start_line = self.line;
+        let start_col = self.column;
+
+        // consume opening quote
+        self.advance();
+
+        let mut value = String::new();
+
+        while let Some(c) = self.current {
+            match c {
+                '"' => {
+                    // closing quote
+                    self.advance();
+                    return Ok(Token {
+                        kind: TokenKind::String(value),
+                        line: start_line,
+                        column: start_col,
+                    });
+                }
+                '\\' => {
+                    // escape sequence
+                    self.advance();
+                    match self.current {
+                        Some('n') => { value.push('\n'); self.advance(); }
+                        Some('t') => { value.push('\t'); self.advance(); }
+                        Some('r') => { value.push('\r'); self.advance(); }
+                        Some('"') => { value.push('"'); self.advance(); }
+                        Some('\\') => { value.push('\\'); self.advance(); }
+                        Some(other) => {
+                            // unknown escape, keep as-is
+                            value.push(other);
+                            self.advance();
+                        }
+                        None => {
+                            return Err(LexError::UnterminatedString {
+                                line: start_line,
+                                column: start_col,
+                            });
+                        }
+                    }
+                }
+                _ => {
+                    value.push(c);
+                    self.advance();
+                }
+            }
+        }
+
+        Err(LexError::UnterminatedString {
+            line: start_line,
+            column: start_col,
+        })
+    }
+
     pub fn next_token(&mut self) -> Result<Token, LexError> {
         while let Some(c) = self.current {
             match c {
@@ -173,6 +231,11 @@ impl<'a> Lexer<'a> {
                 ' ' | '\t' | '\r' | '\n' => {
                     self.advance();
                     continue;
+                }
+
+                // Strings
+                '"' => {
+                    return self.lex_string();
                 }
 
                 // Identifiers + keywords
