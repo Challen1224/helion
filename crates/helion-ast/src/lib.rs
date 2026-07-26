@@ -42,6 +42,16 @@ pub enum Stmt {
     Return {
         value: Expr,
     },
+    ExprStmt {
+        expr: Expr,
+    },
+    Block {
+        stmts: Vec<Stmt>,
+    },
+    Function {
+        name: String,
+        body: Box<Stmt>, // MUST be boxed
+    },
 }
 
 #[derive(Debug)]

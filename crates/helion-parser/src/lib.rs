@@ -41,25 +41,90 @@ impl<'a> Parser<'a> {
         }
     }
 
+    // ============================================
+    // PROGRAM
+    // ============================================
+
     pub fn parse_program(&mut self) -> Result<Program, ParseError> {
         let mut stmts = Vec::new();
 
         while self.current.kind != TokenKind::Eof {
-            stmts.push(self.parse_stmt()?);
+            stmts.push(self.parse_top_level()?);
         }
 
         Ok(Program { stmts })
     }
 
-    fn parse_stmt(&mut self) -> Result<Stmt, ParseError> {
-        match &self.current.kind {
+    fn parse_top_level(&mut self) -> Result<Stmt, ParseError> {
+        match self.current.kind {
+            TokenKind::KeywordFn => self.parse_function(),
             TokenKind::KeywordLet => self.parse_let(),
             TokenKind::KeywordReturn => self.parse_return(),
-            _ => Err(ParseError::UnexpectedToken {
-                token: self.current.clone(),
-                line: self.current.line,
-                column: self.current.column,
-            }),
+            TokenKind::LBrace => self.parse_block(),
+            _ => self.parse_stmt(),
+        }
+    }
+
+    // ============================================
+    // FUNCTIONS
+    // ============================================
+
+    fn parse_function(&mut self) -> Result<Stmt, ParseError> {
+        // fn <ident> { <block> }
+        self.advance()?; // consume "fn"
+
+        let name = match &self.current.kind {
+            TokenKind::Ident(s) => {
+                let n = s.clone();
+                self.advance()?;
+                n
+            }
+            _ => {
+                return Err(ParseError::UnexpectedToken {
+                    token: self.current.clone(),
+                    line: self.current.line,
+                    column: self.current.column,
+                })
+            }
+        };
+
+        let body = self.parse_block()?;
+
+        Ok(Stmt::Function { name, body: Box::new(body) })
+    }
+
+    // ============================================
+    // BLOCKS
+    // ============================================
+
+    fn parse_block(&mut self) -> Result<Stmt, ParseError> {
+        self.expect(TokenKind::LBrace)?;
+
+        let mut stmts = Vec::new();
+
+        while self.current.kind != TokenKind::RBrace && self.current.kind != TokenKind::Eof {
+            stmts.push(self.parse_stmt()?);
+        }
+
+        self.expect(TokenKind::RBrace)?;
+
+        Ok(Stmt::Block { stmts })
+    }
+
+    // ============================================
+    // STATEMENTS
+    // ============================================
+
+    fn parse_stmt(&mut self) -> Result<Stmt, ParseError> {
+        match self.current.kind {
+            TokenKind::KeywordLet => self.parse_let(),
+            TokenKind::KeywordReturn => self.parse_return(),
+            TokenKind::LBrace => self.parse_block(),
+            _ => {
+                // Expression statement
+                let expr = self.parse_expr()?;
+                Ok(Stmt::ExprStmt { expr })
+            }
         }
     }
 
@@ -94,9 +159,9 @@ impl<'a> Parser<'a> {
         Ok(Stmt::Return { value })
     }
 
-    // -----------------------------
-    // Expression parsing (full)
-    // -----------------------------
+    // ============================================
+    // EXPRESSIONS (your full expression parser)
+    // ============================================
 
     pub fn parse_expr(&mut self) -> Result<Expr, ParseError> {
         self.parse_equality()
