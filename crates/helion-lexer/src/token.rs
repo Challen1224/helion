@@ -4,8 +4,8 @@ pub enum TokenKind {
     Fn,
     Let,
     Const,
-    If,
-    Else,
+    KeywordIf,
+    KeywordElse,
     While,
     Return,
 

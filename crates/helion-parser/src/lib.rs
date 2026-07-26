@@ -1,12 +1,16 @@
 use helion_ast::{BinaryOp, Expr, Program, Stmt};
-use helion_lexer::lexer::{Lexer, LexError};
+use helion_lexer::lexer::{LexError, Lexer};
 use helion_lexer::token::{Token, TokenKind};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ParseError {
     #[error("Unexpected token {token:?} at {line}:{column}")]
-    UnexpectedToken { token: Token, line: usize, column: usize },
+    UnexpectedToken {
+        token: Token,
+        line: usize,
+        column: usize,
+    },
 
     #[error("Lexer error: {0}")]
     Lex(#[from] LexError),
@@ -21,7 +25,10 @@ impl<'a> Parser<'a> {
     pub fn new(src: &'a str) -> Result<Self, ParseError> {
         let mut lexer = Lexer::new(src);
         let first = lexer.next_token()?;
-        Ok(Self { lexer, current: first })
+        Ok(Self {
+            lexer,
+            current: first,
+        })
     }
 
     fn advance(&mut self) -> Result<(), ParseError> {
@@ -90,7 +97,10 @@ impl<'a> Parser<'a> {
 
         let body = self.parse_block()?;
 
-        Ok(Stmt::Function { name, body: Box::new(body) })
+        Ok(Stmt::Function {
+            name,
+            body: Box::new(body),
+        })
     }
 
     // ============================================
@@ -119,13 +129,38 @@ impl<'a> Parser<'a> {
         match self.current.kind {
             TokenKind::KeywordLet => self.parse_let(),
             TokenKind::KeywordReturn => self.parse_return(),
+            TokenKind::KeywordIf => self.parse_if(),
             TokenKind::LBrace => self.parse_block(),
             _ => {
-                // Expression statement
                 let expr = self.parse_expr()?;
                 Ok(Stmt::ExprStmt { expr })
             }
         }
+    }
+
+    fn parse_if(&mut self) -> Result<Stmt, ParseError> {
+        // consume "if"
+        self.advance()?;
+
+        // parse condition expression
+        let condition = self.parse_expr()?;
+
+        // parse then-block
+        let then_branch = self.parse_block()?;
+
+        // optional else
+        let else_branch = if self.current.kind == TokenKind::KeywordElse {
+            self.advance()?; // consume "else"
+            Some(Box::new(self.parse_block()?))
+        } else {
+            None
+        };
+
+        Ok(Stmt::If {
+            condition,
+            then_branch: Box::new(then_branch),
+            else_branch,
+        })
     }
 
     fn parse_let(&mut self) -> Result<Stmt, ParseError> {

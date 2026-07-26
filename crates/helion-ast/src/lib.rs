@@ -50,7 +50,12 @@ pub enum Stmt {
     },
     Function {
         name: String,
-        body: Box<Stmt>, // MUST be boxed
+        body: Box<Stmt>,
+    },
+    If {
+        condition: Expr,
+        then_branch: Box<Stmt>,
+        else_branch: Option<Box<Stmt>>,
     },
 }
 

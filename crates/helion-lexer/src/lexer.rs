@@ -4,7 +4,11 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum LexError {
     #[error("Unexpected character '{ch}' at {line}:{column}")]
-    UnexpectedChar { ch: char, line: usize, column: usize },
+    UnexpectedChar {
+        ch: char,
+        line: usize,
+        column: usize,
+    },
 
     #[error("Invalid number literal at {line}:{column}")]
     InvalidNumber { line: usize, column: usize },
@@ -78,6 +82,8 @@ impl<'a> Lexer<'a> {
             "let" => TokenKind::KeywordLet,
             "const" => TokenKind::KeywordConst,
             "return" => TokenKind::KeywordReturn,
+            "if" => TokenKind::KeywordIf,
+            "else" => TokenKind::KeywordElse,
             _ => TokenKind::Ident(ident),
         };
 
@@ -132,36 +138,68 @@ impl<'a> Lexer<'a> {
                 self.advance();
                 if self.current == Some('=') {
                     self.advance();
-                    return Ok(Token { kind: TokenKind::EqualEqual, line: start_line, column: start_col });
+                    return Ok(Token {
+                        kind: TokenKind::EqualEqual,
+                        line: start_line,
+                        column: start_col,
+                    });
                 }
-                return Ok(Token { kind: TokenKind::Equal, line: start_line, column: start_col });
+                return Ok(Token {
+                    kind: TokenKind::Equal,
+                    line: start_line,
+                    column: start_col,
+                });
             }
 
             Some('!') => {
                 self.advance();
                 if self.current == Some('=') {
                     self.advance();
-                    return Ok(Token { kind: TokenKind::BangEqual, line: start_line, column: start_col });
+                    return Ok(Token {
+                        kind: TokenKind::BangEqual,
+                        line: start_line,
+                        column: start_col,
+                    });
                 }
-                return Ok(Token { kind: TokenKind::Bang, line: start_line, column: start_col });
+                return Ok(Token {
+                    kind: TokenKind::Bang,
+                    line: start_line,
+                    column: start_col,
+                });
             }
 
             Some('<') => {
                 self.advance();
                 if self.current == Some('=') {
                     self.advance();
-                    return Ok(Token { kind: TokenKind::LessEqual, line: start_line, column: start_col });
+                    return Ok(Token {
+                        kind: TokenKind::LessEqual,
+                        line: start_line,
+                        column: start_col,
+                    });
                 }
-                return Ok(Token { kind: TokenKind::Less, line: start_line, column: start_col });
+                return Ok(Token {
+                    kind: TokenKind::Less,
+                    line: start_line,
+                    column: start_col,
+                });
             }
 
             Some('>') => {
                 self.advance();
                 if self.current == Some('=') {
                     self.advance();
-                    return Ok(Token { kind: TokenKind::GreaterEqual, line: start_line, column: start_col });
+                    return Ok(Token {
+                        kind: TokenKind::GreaterEqual,
+                        line: start_line,
+                        column: start_col,
+                    });
                 }
-                return Ok(Token { kind: TokenKind::Greater, line: start_line, column: start_col });
+                return Ok(Token {
+                    kind: TokenKind::Greater,
+                    line: start_line,
+                    column: start_col,
+                });
             }
 
             _ => Err(LexError::UnexpectedChar {
@@ -193,11 +231,26 @@ impl<'a> Lexer<'a> {
                 '\\' => {
                     self.advance();
                     match self.current {
-                        Some('n') => { value.push('\n'); self.advance(); }
-                        Some('t') => { value.push('\t'); self.advance(); }
-                        Some('r') => { value.push('\r'); self.advance(); }
-                        Some('"') => { value.push('"'); self.advance(); }
-                        Some('\\') => { value.push('\\'); self.advance(); }
+                        Some('n') => {
+                            value.push('\n');
+                            self.advance();
+                        }
+                        Some('t') => {
+                            value.push('\t');
+                            self.advance();
+                        }
+                        Some('r') => {
+                            value.push('\r');
+                            self.advance();
+                        }
+                        Some('"') => {
+                            value.push('"');
+                            self.advance();
+                        }
+                        Some('\\') => {
+                            value.push('\\');
+                            self.advance();
+                        }
                         Some(other) => {
                             value.push(other);
                             self.advance();
@@ -296,16 +349,41 @@ impl<'a> Lexer<'a> {
                     }
 
                     self.advance();
-                    return Ok(Token { kind: TokenKind::Slash, line: start_line, column: start_col });
+                    return Ok(Token {
+                        kind: TokenKind::Slash,
+                        line: start_line,
+                        column: start_col,
+                    });
                 }
 
-                '(' => { self.advance(); return Ok(self.make_token(TokenKind::LParen)); }
-                ')' => { self.advance(); return Ok(self.make_token(TokenKind::RParen)); }
-                '{' => { self.advance(); return Ok(self.make_token(TokenKind::LBrace)); }
-                '}' => { self.advance(); return Ok(self.make_token(TokenKind::RBrace)); }
-                '+' => { self.advance(); return Ok(self.make_token(TokenKind::Plus)); }
-                '-' => { self.advance(); return Ok(self.make_token(TokenKind::Minus)); }
-                '*' => { self.advance(); return Ok(self.make_token(TokenKind::Star)); }
+                '(' => {
+                    self.advance();
+                    return Ok(self.make_token(TokenKind::LParen));
+                }
+                ')' => {
+                    self.advance();
+                    return Ok(self.make_token(TokenKind::RParen));
+                }
+                '{' => {
+                    self.advance();
+                    return Ok(self.make_token(TokenKind::LBrace));
+                }
+                '}' => {
+                    self.advance();
+                    return Ok(self.make_token(TokenKind::RBrace));
+                }
+                '+' => {
+                    self.advance();
+                    return Ok(self.make_token(TokenKind::Plus));
+                }
+                '-' => {
+                    self.advance();
+                    return Ok(self.make_token(TokenKind::Minus));
+                }
+                '*' => {
+                    self.advance();
+                    return Ok(self.make_token(TokenKind::Star));
+                }
 
                 _ => {
                     return Err(LexError::UnexpectedChar {

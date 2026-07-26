@@ -32,7 +32,7 @@ impl Interpreter {
         });
 
         let main = match main {
-            Some(Stmt::Function { name: _, body }) => body,
+            Some(Stmt::Function { body, .. }) => body,
             _ => return Err(RuntimeError::UndefinedVariable("main".into())),
         };
 
@@ -72,6 +72,28 @@ impl Interpreter {
                 // Functions only run at top level for now
                 Ok(Value::Null)
             }
+
+            Stmt::If {
+                condition,
+                then_branch,
+                else_branch,
+            } => {
+                let cond = self.eval_expr(env, condition)?;
+
+                match cond {
+                    Value::Bool(true) => self.exec_stmt(env, then_branch),
+                    Value::Bool(false) => {
+                        if let Some(else_branch) = else_branch {
+                            self.exec_stmt(env, else_branch)
+                        } else {
+                            Ok(Value::Null)
+                        }
+                    }
+                    _ => Err(RuntimeError::TypeError(
+                        "if condition must be boolean".into(),
+                    )),
+                }
+            }
         }
     }
 
@@ -89,7 +111,9 @@ impl Interpreter {
                 let v = self.eval_expr(env, inner)?;
                 match v {
                     Value::Number(n) => Ok(Value::Number(-n)),
-                    _ => Err(RuntimeError::TypeError("Unary minus on non-number".into())),
+                    _ => Err(RuntimeError::TypeError(
+                        "Unary minus on non-number".into(),
+                    )),
                 }
             }
 
@@ -97,7 +121,9 @@ impl Interpreter {
                 let v = self.eval_expr(env, inner)?;
                 match v {
                     Value::Bool(b) => Ok(Value::Bool(!b)),
-                    _ => Err(RuntimeError::TypeError("Unary ! on non-bool".into())),
+                    _ => Err(RuntimeError::TypeError(
+                        "Unary ! on non-bool".into(),
+                    )),
                 }
             }
 
@@ -149,7 +175,9 @@ impl Interpreter {
     ) -> Result<Value, RuntimeError> {
         match (l, r) {
             (Value::Number(a), Value::Number(b)) => Ok(Value::Bool(f(a, b))),
-            _ => Err(RuntimeError::TypeError("Comparison on non-numbers".into())),
+            _ => Err(RuntimeError::TypeError(
+                "Comparison on non-numbers".into(),
+            )),
         }
     }
 
