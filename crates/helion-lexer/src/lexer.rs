@@ -11,6 +11,9 @@ pub enum LexError {
 
     #[error("Unterminated string literal at {line}:{column}")]
     UnterminatedString { line: usize, column: usize },
+
+    #[error("Unterminated block comment at {line}:{column}")]
+    UnterminatedComment { line: usize, column: usize },
 }
 
 pub struct Lexer<'a> {
@@ -173,15 +176,13 @@ impl<'a> Lexer<'a> {
         let start_line = self.line;
         let start_col = self.column;
 
-        // consume opening quote
-        self.advance();
+        self.advance(); // opening quote
 
         let mut value = String::new();
 
         while let Some(c) = self.current {
             match c {
                 '"' => {
-                    // closing quote
                     self.advance();
                     return Ok(Token {
                         kind: TokenKind::String(value),
@@ -190,7 +191,6 @@ impl<'a> Lexer<'a> {
                     });
                 }
                 '\\' => {
-                    // escape sequence
                     self.advance();
                     match self.current {
                         Some('n') => { value.push('\n'); self.advance(); }
@@ -199,7 +199,6 @@ impl<'a> Lexer<'a> {
                         Some('"') => { value.push('"'); self.advance(); }
                         Some('\\') => { value.push('\\'); self.advance(); }
                         Some(other) => {
-                            // unknown escape, keep as-is
                             value.push(other);
                             self.advance();
                         }
@@ -224,36 +223,82 @@ impl<'a> Lexer<'a> {
         })
     }
 
+    fn lex_comment(&mut self) -> Result<(), LexError> {
+        // We already know current == '/'
+        self.advance();
+
+        match self.current {
+            // Single-line comment: //
+            Some('/') => {
+                while let Some(c) = self.current {
+                    self.advance();
+                    if c == '\n' {
+                        break;
+                    }
+                }
+                Ok(())
+            }
+
+            // Multi-line comment: /* ... */
+            Some('*') => {
+                self.advance();
+                while let Some(c) = self.current {
+                    if c == '*' {
+                        self.advance();
+                        if self.current == Some('/') {
+                            self.advance();
+                            return Ok(());
+                        }
+                    } else {
+                        self.advance();
+                    }
+                }
+
+                Err(LexError::UnterminatedComment {
+                    line: self.line,
+                    column: self.column,
+                })
+            }
+
+            // Just a slash operator
+            _ => Ok(()),
+        }
+    }
+
     pub fn next_token(&mut self) -> Result<Token, LexError> {
         while let Some(c) = self.current {
             match c {
-                // Whitespace
                 ' ' | '\t' | '\r' | '\n' => {
                     self.advance();
                     continue;
                 }
 
-                // Strings
-                '"' => {
-                    return self.lex_string();
+                '"' => return self.lex_string(),
+
+                'a'..='z' | 'A'..='Z' | '_' => return Ok(self.lex_identifier()),
+
+                '0'..='9' => return self.lex_number(),
+
+                '=' | '!' | '<' | '>' => return self.lex_operator(),
+
+                '/' => {
+                    // Could be comment or slash operator
+                    let start_line = self.line;
+                    let start_col = self.column;
+
+                    // Peek next char
+                    let mut clone = self.chars.clone();
+                    let next = clone.next();
+
+                    if next == Some('/') || next == Some('*') {
+                        self.lex_comment()?;
+                        continue;
+                    }
+
+                    self.advance();
+                    return Ok(Token { kind: TokenKind::Slash, line: start_line, column: start_col });
                 }
 
-                // Identifiers + keywords
-                'a'..='z' | 'A'..='Z' | '_' => {
-                    return Ok(self.lex_identifier());
-                }
-
-                // Numbers
-                '0'..='9' => {
-                    return self.lex_number();
-                }
-
-                // Operators
-                '=' | '!' | '<' | '>' => {
-                    return self.lex_operator();
-                }
-
-                // Punctuation
                 '(' => { self.advance(); return Ok(self.make_token(TokenKind::LParen)); }
                 ')' => { self.advance(); return Ok(self.make_token(TokenKind::RParen)); }
                 '{' => { self.advance(); return Ok(self.make_token(TokenKind::LBrace)); }
@@ -261,9 +306,7 @@ impl<'a> Lexer<'a> {
                 '+' => { self.advance(); return Ok(self.make_token(TokenKind::Plus)); }
                 '-' => { self.advance(); return Ok(self.make_token(TokenKind::Minus)); }
                 '*' => { self.advance(); return Ok(self.make_token(TokenKind::Star)); }
-                '/' => { self.advance(); return Ok(self.make_token(TokenKind::Slash)); }
 
-                // Unknown character
                 _ => {
                     return Err(LexError::UnexpectedChar {
                         ch: c,

@@ -1,3 +1,8 @@
-﻿let msg = "hello"
-let escaped = "line1\nline2\t\"quoted\"\\slash"
+﻿// single line comment
+let x = 42
+
+/* multi
+   line
+   comment */
+let msg = "hello"
 return msg
