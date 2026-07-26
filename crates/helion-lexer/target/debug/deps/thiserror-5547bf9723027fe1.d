@@ -1,0 +1,9 @@
+C:\Users\chall\Desktop\helion\crates\helion-lexer\target\debug\deps\thiserror-5547bf9723027fe1.d: C:\Users\chall\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\lib.rs C:\Users\chall\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\aserror.rs C:\Users\chall\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\display.rs
+
+C:\Users\chall\Desktop\helion\crates\helion-lexer\target\debug\deps\libthiserror-5547bf9723027fe1.rlib: C:\Users\chall\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\lib.rs C:\Users\chall\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\aserror.rs C:\Users\chall\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\display.rs
+
+C:\Users\chall\Desktop\helion\crates\helion-lexer\target\debug\deps\libthiserror-5547bf9723027fe1.rmeta: C:\Users\chall\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\lib.rs C:\Users\chall\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\aserror.rs C:\Users\chall\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\display.rs
+
+C:\Users\chall\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\lib.rs:
+C:\Users\chall\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\aserror.rs:
+C:\Users\chall\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\display.rs:

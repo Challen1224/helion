@@ -1,14 +1,17 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
-
+pub mod token;
+pub mod lexer;
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::lexer::Lexer;
+    use super::token::TokenKind;
 
     #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+    fn basic_punct() {
+        let mut lx = Lexer::new("(){}+");
+        assert_eq!(lx.next_token().unwrap().kind, TokenKind::LParen);
+        assert_eq!(lx.next_token().unwrap().kind, TokenKind::RParen);
+        assert_eq!(lx.next_token().unwrap().kind, TokenKind::LBrace);
+        assert_eq!(lx.next_token().unwrap().kind, TokenKind::RBrace);
+        assert_eq!(lx.next_token().unwrap().kind, TokenKind::Plus);
     }
 }
