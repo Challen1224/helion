@@ -1,145 +1,17 @@
-   0.219069500s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint: fingerprint error for helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("helion_lexer", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer\\src\\lib.rs", Edition2021) }
-   0.263952700s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-lexer-144f0618478dadd2\lib-helion_lexer`
-
-Caused by:
-    The system cannot find the file specified. (os error 2)
-
-Stack backtrace:
-   0: git_midx_writer_dump
-   1: git_midx_writer_dump
-   2: git_midx_writer_dump
-   3: git_midx_writer_dump
-   4: git_filter_source_repo
-   5: git_filter_source_repo
-   6: git_filter_source_repo
-   7: git_filter_source_repo
-   8: git_filter_source_repo
-   9: git_filter_source_repo
-  10: git_filter_source_repo
-  11: git_libgit2_prerelease
-  12: <unknown>
-  13: <unknown>
-  14: <unknown>
-  15: <unknown>
-  16: git_midx_writer_dump
-  17: git_filter_source_repo
-  18: git_midx_writer_dump
-  19: BaseThreadInitThunk
-  20: RtlUserThreadStart
-   0.415020500s  INFO prepare_target{force=false package_id=thiserror v1.0.69 target="thiserror"}: cargo::core::compiler::fingerprint: fingerprint error for thiserror v1.0.69/Check { test: false }/TargetInner { ..: lib_target("thiserror", ["lib"], "C:\\Users\\chall\\.cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\thiserror-1.0.69\\src\\lib.rs", Edition2021) }
-   0.415088400s  INFO prepare_target{force=false package_id=thiserror v1.0.69 target="thiserror"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\thiserror-1eb1e40d279241ce\lib-thiserror`
-
-Caused by:
-    The system cannot find the file specified. (os error 2)
-
-Stack backtrace:
-   0: git_midx_writer_dump
-   1: git_midx_writer_dump
-   2: git_midx_writer_dump
-   3: git_midx_writer_dump
-   4: git_filter_source_repo
-   5: git_filter_source_repo
-   6: git_filter_source_repo
-   7: git_filter_source_repo
-   8: git_filter_source_repo
-   9: git_filter_source_repo
-  10: git_filter_source_repo
-  11: git_filter_source_repo
-  12: git_libgit2_prerelease
-  13: <unknown>
-  14: <unknown>
-  15: <unknown>
-  16: <unknown>
-  17: git_midx_writer_dump
-  18: git_filter_source_repo
-  19: git_midx_writer_dump
-  20: BaseThreadInitThunk
-  21: RtlUserThreadStart
-   0.433136500s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint: fingerprint error for helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("helion_lexer", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer\\src\\lib.rs", Edition2021) }
-   0.433202400s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-lexer-436062d2e972fb74\test-lib-helion_lexer`
-
-Caused by:
-    The system cannot find the file specified. (os error 2)
-
-Stack backtrace:
-   0: git_midx_writer_dump
-   1: git_midx_writer_dump
-   2: git_midx_writer_dump
-   3: git_midx_writer_dump
-   4: git_filter_source_repo
-   5: git_filter_source_repo
-   6: git_filter_source_repo
-   7: git_filter_source_repo
-   8: git_filter_source_repo
-   9: git_filter_source_repo
-  10: git_filter_source_repo
-  11: git_libgit2_prerelease
-  12: <unknown>
-  13: <unknown>
-  14: <unknown>
-  15: <unknown>
-  16: git_midx_writer_dump
-  17: git_filter_source_repo
-  18: git_midx_writer_dump
-  19: BaseThreadInitThunk
-  20: RtlUserThreadStart
-   0.435966200s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint: fingerprint error for helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo)/Check { test: false }/TargetInner { name: "helion-lexer-demo", doc: true, ..: with_path("C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer-demo\\src\\main.rs", Edition2021) }
-   0.436091000s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-lexer-demo-5a0c4fd3d1836c23\bin-helion-lexer-demo`
-
-Caused by:
-    The system cannot find the file specified. (os error 2)
-
-Stack backtrace:
-   0: git_midx_writer_dump
-   1: git_midx_writer_dump
-   2: git_midx_writer_dump
-   3: git_midx_writer_dump
-   4: git_filter_source_repo
-   5: git_filter_source_repo
-   6: git_filter_source_repo
-   7: git_filter_source_repo
-   8: git_filter_source_repo
-   9: git_filter_source_repo
-  10: git_filter_source_repo
-  11: git_libgit2_prerelease
-  12: <unknown>
-  13: <unknown>
-  14: <unknown>
-  15: <unknown>
-  16: git_midx_writer_dump
-  17: git_filter_source_repo
-  18: git_midx_writer_dump
-  19: BaseThreadInitThunk
-  20: RtlUserThreadStart
-   0.438476700s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint: fingerprint error for helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo)/Check { test: true }/TargetInner { name: "helion-lexer-demo", doc: true, ..: with_path("C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer-demo\\src\\main.rs", Edition2021) }
-   0.438546100s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint:     err: failed to read `C:\Users\chall\Desktop\helion\target\debug\.fingerprint\helion-lexer-demo-e31994992d1d7974\test-bin-helion-lexer-demo`
-
-Caused by:
-    The system cannot find the file specified. (os error 2)
-
-Stack backtrace:
-   0: git_midx_writer_dump
-   1: git_midx_writer_dump
-   2: git_midx_writer_dump
-   3: git_midx_writer_dump
-   4: git_filter_source_repo
-   5: git_filter_source_repo
-   6: git_filter_source_repo
-   7: git_filter_source_repo
-   8: git_filter_source_repo
-   9: git_filter_source_repo
-  10: git_filter_source_repo
-  11: git_libgit2_prerelease
-  12: <unknown>
-  13: <unknown>
-  14: <unknown>
-  15: <unknown>
-  16: git_midx_writer_dump
-  17: git_filter_source_repo
-  18: git_midx_writer_dump
-  19: BaseThreadInitThunk
-  20: RtlUserThreadStart
-    Checking thiserror v1.0.69
+   0.112499900s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint: stale: changed "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer\\src\\lexer.rs"
+   0.112591200s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint:           (vs) "C:\\Users\\chall\\Desktop\\helion\\target\\debug\\.fingerprint\\helion-lexer-144f0618478dadd2\\dep-lib-helion_lexer"
+   0.112611400s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 13429580529, nanos: 9749500 } < FileTime { seconds: 13429580609, nanos: 935129900 }
+   0.113145100s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint: fingerprint dirty for helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("helion_lexer", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer\\src\\lib.rs", Edition2021) }
+   0.113228600s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "C:\\Users\\chall\\Desktop\\helion\\target\\debug\\.fingerprint\\helion-lexer-144f0618478dadd2\\dep-lib-helion_lexer", reference_mtime: FileTime { seconds: 13429580529, nanos: 9749500 }, stale: "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer\\src\\lexer.rs", stale_mtime: FileTime { seconds: 13429580609, nanos: 935129900 } }))
+   0.128549900s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint: stale: changed "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer\\src\\lexer.rs"
+   0.128589900s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint:           (vs) "C:\\Users\\chall\\Desktop\\helion\\target\\debug\\.fingerprint\\helion-lexer-436062d2e972fb74\\dep-test-lib-helion_lexer"
+   0.128607500s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 13429580529, nanos: 9749500 } < FileTime { seconds: 13429580609, nanos: 935129900 }
+   0.129012200s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint: fingerprint dirty for helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("helion_lexer", ["lib"], "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer\\src\\lib.rs", Edition2021) }
+   0.129061200s  INFO prepare_target{force=false package_id=helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer) target="helion_lexer"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "C:\\Users\\chall\\Desktop\\helion\\target\\debug\\.fingerprint\\helion-lexer-436062d2e972fb74\\dep-test-lib-helion_lexer", reference_mtime: FileTime { seconds: 13429580529, nanos: 9749500 }, stale: "C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer\\src\\lexer.rs", stale_mtime: FileTime { seconds: 13429580609, nanos: 935129900 } }))
+   0.131793500s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint: fingerprint dirty for helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo)/Check { test: false }/TargetInner { name: "helion-lexer-demo", doc: true, ..: with_path("C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer-demo\\src\\main.rs", Edition2021) }
+   0.131899700s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { unit: UnitIndex(0) })
+   0.134470300s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint: fingerprint dirty for helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo)/Check { test: true }/TargetInner { name: "helion-lexer-demo", doc: true, ..: with_path("C:\\Users\\chall\\Desktop\\helion\\crates\\helion-lexer-demo\\src\\main.rs", Edition2021) }
+   0.134542200s  INFO prepare_target{force=false package_id=helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo) target="helion-lexer-demo"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { unit: UnitIndex(0) })
     Checking helion-lexer v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer)
     Checking helion-lexer-demo v0.1.0 (C:\Users\chall\Desktop\helion\crates\helion-lexer-demo)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 28.75s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.59s

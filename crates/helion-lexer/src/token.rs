@@ -27,6 +27,12 @@ pub enum TokenKind {
     Greater,
     GreaterEqual,
 
+    // Keywords
+    KeywordFn,
+    KeywordLet,
+    KeywordConst,
+    KeywordReturn,
+
     // Punctuation
     LParen,
     RParen,
