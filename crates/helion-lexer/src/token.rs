@@ -21,6 +21,7 @@ pub enum TokenKind {
     Slash,
     Equal,
     EqualEqual,
+    Bang,
     BangEqual,
     Less,
     LessEqual,

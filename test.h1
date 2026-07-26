@@ -1,5 +1,7 @@
-﻿fn main {
-    let x
-    const y
-    return x
-}
+﻿let x = 42
+let y = x == 42
+let z = x != y
+let a = x <= y
+let b = x >= y
+let c = x < y
+let d = x > y

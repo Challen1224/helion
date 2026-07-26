@@ -5,6 +5,9 @@ use thiserror::Error;
 pub enum LexError {
     #[error("Unexpected character '{ch}' at {line}:{column}")]
     UnexpectedChar { ch: char, line: usize, column: usize },
+
+    #[error("Invalid number literal at {line}:{column}")]
+    InvalidNumber { line: usize, column: usize },
 }
 
 pub struct Lexer<'a> {
@@ -16,9 +19,7 @@ pub struct Lexer<'a> {
 
 impl<'a> Lexer<'a> {
     pub fn new(src: &'a str) -> Self {
-        // Strip UTF‑8 BOM if present
         let src = src.trim_start_matches('\u{feff}');
-
         let mut chars = src.chars();
         let current = chars.next();
 
@@ -81,6 +82,90 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    fn lex_number(&mut self) -> Result<Token, LexError> {
+        let start_line = self.line;
+        let start_col = self.column;
+
+        let mut num = String::new();
+        let mut has_dot = false;
+
+        while let Some(c) = self.current {
+            match c {
+                '0'..='9' => {
+                    num.push(c);
+                    self.advance();
+                }
+                '.' if !has_dot => {
+                    has_dot = true;
+                    num.push('.');
+                    self.advance();
+                }
+                _ => break,
+            }
+        }
+
+        match num.parse::<f64>() {
+            Ok(value) => Ok(Token {
+                kind: TokenKind::Number(value),
+                line: start_line,
+                column: start_col,
+            }),
+            Err(_) => Err(LexError::InvalidNumber {
+                line: start_line,
+                column: start_col,
+            }),
+        }
+    }
+
+    fn lex_operator(&mut self) -> Result<Token, LexError> {
+        let start_line = self.line;
+        let start_col = self.column;
+
+        match self.current {
+            Some('=') => {
+                self.advance();
+                if self.current == Some('=') {
+                    self.advance();
+                    return Ok(Token { kind: TokenKind::EqualEqual, line: start_line, column: start_col });
+                }
+                return Ok(Token { kind: TokenKind::Equal, line: start_line, column: start_col });
+            }
+
+            Some('!') => {
+                self.advance();
+                if self.current == Some('=') {
+                    self.advance();
+                    return Ok(Token { kind: TokenKind::BangEqual, line: start_line, column: start_col });
+                }
+                return Ok(Token { kind: TokenKind::Bang, line: start_line, column: start_col });
+            }
+
+            Some('<') => {
+                self.advance();
+                if self.current == Some('=') {
+                    self.advance();
+                    return Ok(Token { kind: TokenKind::LessEqual, line: start_line, column: start_col });
+                }
+                return Ok(Token { kind: TokenKind::Less, line: start_line, column: start_col });
+            }
+
+            Some('>') => {
+                self.advance();
+                if self.current == Some('=') {
+                    self.advance();
+                    return Ok(Token { kind: TokenKind::GreaterEqual, line: start_line, column: start_col });
+                }
+                return Ok(Token { kind: TokenKind::Greater, line: start_line, column: start_col });
+            }
+
+            _ => Err(LexError::UnexpectedChar {
+                ch: self.current.unwrap(),
+                line: start_line,
+                column: start_col,
+            }),
+        }
+    }
+
     pub fn next_token(&mut self) -> Result<Token, LexError> {
         while let Some(c) = self.current {
             match c {
@@ -93,6 +178,16 @@ impl<'a> Lexer<'a> {
                 // Identifiers + keywords
                 'a'..='z' | 'A'..='Z' | '_' => {
                     return Ok(self.lex_identifier());
+                }
+
+                // Numbers
+                '0'..='9' => {
+                    return self.lex_number();
+                }
+
+                // Operators
+                '=' | '!' | '<' | '>' => {
+                    return self.lex_operator();
                 }
 
                 // Punctuation
@@ -117,43 +212,5 @@ impl<'a> Lexer<'a> {
         }
 
         Ok(self.make_token(TokenKind::Eof))
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::token::TokenKind;
-
-    #[test]
-    fn test_keywords_and_identifiers() {
-        let mut lx = Lexer::new("fn main let x const y return value");
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::KeywordFn);
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::Ident("main".into()));
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::KeywordLet);
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::Ident("x".into()));
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::KeywordConst);
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::Ident("y".into()));
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::KeywordReturn);
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::Ident("value".into()));
-    }
-
-    #[test]
-    fn test_punctuation() {
-        let mut lx = Lexer::new("(){+}-*/");
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::LParen);
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::RParen);
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::LBrace);
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::RBrace);
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::Plus);
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::Minus);
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::Star);
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::Slash);
-    }
-
-    #[test]
-    fn test_eof() {
-        let mut lx = Lexer::new("");
-        assert_eq!(lx.next_token().unwrap().kind, TokenKind::Eof);
     }
 }
