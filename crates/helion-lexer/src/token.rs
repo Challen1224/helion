@@ -33,8 +33,14 @@ pub enum TokenKind {
     RParen,
     LBrace,
     RBrace,
+    LBracket,
+    RBracket,
     Comma,
     Semicolon,
+
+    // ⭐ NEW TOKENS FOR OBJECTS
+    Colon,   // :
+    Dot,     // .
 
     // End of file
     Eof,

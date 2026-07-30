@@ -6,6 +6,7 @@ mod value;
 
 use env::Env;
 use value::Value;
+use std::collections::HashMap;
 
 #[derive(Debug, Error)]
 pub enum RuntimeError {
@@ -34,7 +35,7 @@ impl Interpreter {
     pub fn run(&self, program: &Program) -> Result<Value, RuntimeError> {
         let mut env = Env::new();
 
-        // ⭐ Native print()
+        // print()
         env.define(
             "print".into(),
             Value::NativeFunction(|args| {
@@ -45,7 +46,7 @@ impl Interpreter {
             }),
         );
 
-        // ⭐ Native clock()
+        // clock()
         env.define(
             "clock".into(),
             Value::NativeFunction(|_args| {
@@ -57,7 +58,7 @@ impl Interpreter {
             }),
         );
 
-        // ⭐ Native assert()
+        // assert()
         env.define(
             "assert".into(),
             Value::NativeFunction(|args| {
@@ -80,7 +81,7 @@ impl Interpreter {
             }),
         );
 
-        // ⭐ Native to_string()
+        // to_string()
         env.define(
             "to_string".into(),
             Value::NativeFunction(|args| {
@@ -97,13 +98,25 @@ impl Interpreter {
                     Value::Null => "null".into(),
                     Value::Function(_) => "<function>".into(),
                     Value::NativeFunction(_) => "<native function>".into(),
+                    Value::Array(v) => {
+                        let parts: Vec<String> =
+                            v.iter().map(|x| format!("{:?}", x)).collect();
+                        format!("[{}]", parts.join(", "))
+                    }
+                    Value::Object(map) => {
+                        let mut parts = Vec::new();
+                        for (k, v) in map {
+                            parts.push(format!("{}: {:?}", k, v));
+                        }
+                        format!("{{{}}}", parts.join(", "))
+                    }
                 };
 
                 Ok(Value::String(s))
             }),
         );
 
-        // ⭐ Native input()
+        // input()
         env.define(
             "input".into(),
             Value::NativeFunction(|_args| {
@@ -118,7 +131,7 @@ impl Interpreter {
             }),
         );
 
-        // Register user-defined functions
+        // register user-defined functions
         for stmt in &program.stmts {
             if let Stmt::Function { name, params, body } = stmt {
                 env.define(
@@ -131,7 +144,7 @@ impl Interpreter {
             }
         }
 
-        // Look up main()
+        // main()
         let main_val = env
             .get("main")
             .ok_or_else(|| RuntimeError::UndefinedVariable("main".into()))?;
@@ -178,6 +191,81 @@ impl Interpreter {
                     return Err(RuntimeError::UndefinedVariable(name.clone()));
                 }
                 Ok(ExecResult::Value(Value::Null))
+            }
+
+            // ⭐ ARRAY ASSIGNMENT
+            Stmt::ArrayAssign { array, index, value } => {
+                let arr_name = match array {
+                    Expr::Ident(ref name) => name.clone(),
+                    _ => {
+                        return Err(RuntimeError::TypeError(
+                            "Left side of array assignment must be an identifier".into(),
+                        ))
+                    }
+                };
+
+                let arr_val = env
+                    .get(&arr_name)
+                    .ok_or_else(|| RuntimeError::UndefinedVariable(arr_name.clone()))?;
+
+                let idx_val = self.eval_expr(env, index)?;
+                let new_val = self.eval_expr(env, value)?;
+
+                let idx = match idx_val {
+                    Value::Number(n) => n as usize,
+                    _ => {
+                        return Err(RuntimeError::TypeError(
+                            "array index must be a number".into(),
+                        ))
+                    }
+                };
+
+                match arr_val {
+                    Value::Array(mut vec) => {
+                        if idx >= vec.len() {
+                            return Err(RuntimeError::TypeError(
+                                "array index out of bounds".into(),
+                            ));
+                        }
+
+                        vec[idx] = new_val;
+                        env.set(&arr_name, Value::Array(vec));
+
+                        Ok(ExecResult::Value(Value::Null))
+                    }
+                    _ => Err(RuntimeError::TypeError("indexing non-array".into())),
+                }
+            }
+
+            // ⭐ OBJECT PROPERTY ASSIGNMENT
+            Stmt::ObjectAssign {
+                object,
+                property,
+                value,
+            } => {
+                let obj_name = match object {
+                    Expr::Ident(ref name) => name.clone(),
+                    _ => {
+                        return Err(RuntimeError::TypeError(
+                            "Left side of object assignment must be an identifier".into(),
+                        ))
+                    }
+                };
+
+                let obj_val = env
+                    .get(&obj_name)
+                    .ok_or_else(|| RuntimeError::UndefinedVariable(obj_name.clone()))?;
+
+                let new_val = self.eval_expr(env, value)?;
+
+                match obj_val {
+                    Value::Object(mut map) => {
+                        map.insert(property.clone(), new_val);
+                        env.set(&obj_name, Value::Object(map));
+                        Ok(ExecResult::Value(Value::Null))
+                    }
+                    _ => Err(RuntimeError::TypeError("property access on non-object".into())),
+                }
             }
 
             Stmt::Return { value } => {
@@ -253,7 +341,6 @@ impl Interpreter {
     fn eval_expr(&self, env: &Env, expr: &Expr) -> Result<Value, RuntimeError> {
         match expr {
             Expr::Ident(name) => {
-                // ⭐ Boolean literal support
                 if name == "true" {
                     return Ok(Value::Bool(true));
                 }
@@ -308,6 +395,64 @@ impl Interpreter {
                     _ => Err(RuntimeError::TypeError("call on non-function".into())),
                 }
             }
+
+            // ⭐ OBJECT LITERAL
+            Expr::Object(fields) => {
+                let mut map = HashMap::new();
+                for (key, expr) in fields {
+                    let val = self.eval_expr(env, expr)?;
+                    map.insert(key.clone(), val);
+                }
+                Ok(Value::Object(map))
+            }
+
+            // ⭐ PROPERTY ACCESS
+            Expr::Property { object, property } => {
+                let obj_val = self.eval_expr(env, object)?;
+
+                match obj_val {
+                    Value::Object(map) => map
+                        .get(property)
+                        .cloned()
+                        .ok_or_else(|| RuntimeError::TypeError(format!(
+                            "property '{}' not found",
+                            property
+                        ))),
+                    _ => Err(RuntimeError::TypeError("property access on non-object".into())),
+                }
+            }
+
+            // Array literal
+            Expr::Array(items) => {
+                let mut vals = Vec::new();
+                for item in items {
+                    vals.push(self.eval_expr(env, item)?);
+                }
+                Ok(Value::Array(vals))
+            }
+
+            // Indexing: array[index]
+            Expr::Index { array, index } => {
+                let arr_val = self.eval_expr(env, array)?;
+                let idx_val = self.eval_expr(env, index)?;
+
+                let idx = match idx_val {
+                    Value::Number(n) => n as usize,
+                    _ => {
+                        return Err(RuntimeError::TypeError(
+                            "array index must be a number".into(),
+                        ))
+                    }
+                };
+
+                match arr_val {
+                    Value::Array(vec) => vec
+                        .get(idx)
+                        .cloned()
+                        .ok_or_else(|| RuntimeError::TypeError("array index out of bounds".into())),
+                    _ => Err(RuntimeError::TypeError("indexing non-array".into())),
+                }
+            }
         }
     }
 
@@ -357,6 +502,8 @@ impl Interpreter {
             (Value::String(x), Value::String(y)) => x == y,
             (Value::Bool(x), Value::Bool(y)) => x == y,
             (Value::Null, Value::Null) => true,
+            (Value::Array(x), Value::Array(y)) => x == y,
+            (Value::Object(x), Value::Object(y)) => x == y,
             _ => false,
         }
     }

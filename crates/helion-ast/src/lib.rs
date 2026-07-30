@@ -17,6 +17,24 @@ pub enum Expr {
         callee: Box<Expr>,
         args: Vec<Expr>,
     },
+
+    // ⭐ Array literal: [expr, expr, ...]
+    Array(Vec<Expr>),
+
+    // ⭐ Indexing: array[index]
+    Index {
+        array: Box<Expr>,
+        index: Box<Expr>,
+    },
+
+    // ⭐ Object literal: { key: expr, key2: expr }
+    Object(Vec<(String, Expr)>),
+
+    // ⭐ Property access: object.key
+    Property {
+        object: Box<Expr>,
+        property: String,
+    },
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -65,6 +83,20 @@ pub enum Stmt {
     While {
         condition: Expr,
         body: Box<Stmt>,
+    },
+
+    // ⭐ Array element assignment: array[index] = value
+    ArrayAssign {
+        array: Expr,
+        index: Expr,
+        value: Expr,
+    },
+
+    // ⭐ Object property assignment: object.key = value
+    ObjectAssign {
+        object: Expr,
+        property: String,
+        value: Expr,
     },
 }
 

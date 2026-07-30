@@ -185,9 +185,24 @@ impl<'a> Parser<'a> {
             TokenKind::LBrace => self.parse_block(),
 
             TokenKind::Ident(_) => {
+                let mut clone = self.clone_for_peek();
+                clone.advance()?; // move past ident
+
+                // ⭐ Array assignment
+                if clone.current.kind == TokenKind::LBracket {
+                    return self.parse_assign();
+                }
+
+                // ⭐ Object property assignment: obj.key = value
+                if clone.current.kind == TokenKind::Dot {
+                    return self.parse_object_assign();
+                }
+
+                // ⭐ Normal assignment
                 if self.peek_next_is(TokenKind::Equal)? {
                     return self.parse_assign();
                 }
+
                 let expr = self.parse_expr()?;
                 Ok(Stmt::ExprStmt { expr })
             }
@@ -199,12 +214,21 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn clone_for_peek(&self) -> Parser<'a> {
+        Parser {
+            lexer: self.lexer.clone(),
+            current: self.current.clone(),
+        }
+    }
+
+    // ⭐ ARRAY ASSIGNMENT SUPPORT
+
     fn parse_assign(&mut self) -> Result<Stmt, ParseError> {
-        let name = match &self.current.kind {
+        let mut target = match &self.current.kind {
             TokenKind::Ident(s) => {
                 let n = s.clone();
                 self.advance()?;
-                n
+                Expr::Ident(n)
             }
             _ => {
                 return Err(ParseError::UnexpectedToken {
@@ -216,12 +240,85 @@ impl<'a> Parser<'a> {
         };
 
         self.skip_ws()?;
+        while self.current.kind == TokenKind::LBracket {
+            self.advance()?; // '['
+            let index_expr = self.parse_expr()?;
+            self.expect(TokenKind::RBracket)?;
+            target = Expr::Index {
+                array: Box::new(target),
+                index: Box::new(index_expr),
+            };
+            self.skip_ws()?;
+        }
+
         self.expect(TokenKind::Equal)?;
         self.skip_ws()?;
 
         let value = self.parse_expr()?;
 
-        Ok(Stmt::Assign { name, value })
+        if let Expr::Index { array, index } = target {
+            return Ok(Stmt::ArrayAssign {
+                array: *array,
+                index: *index,
+                value,
+            });
+        }
+
+        if let Expr::Ident(name) = target {
+            return Ok(Stmt::Assign { name, value });
+        }
+
+        Err(ParseError::UnexpectedToken {
+            token: self.current.clone(),
+            line: self.current.line,
+            column: self.current.column,
+        })
+    }
+
+    // ⭐ OBJECT PROPERTY ASSIGNMENT: obj.key = value
+
+    fn parse_object_assign(&mut self) -> Result<Stmt, ParseError> {
+        let obj_name = match &self.current.kind {
+            TokenKind::Ident(s) => s.clone(),
+            _ => {
+                return Err(ParseError::UnexpectedToken {
+                    token: self.current.clone(),
+                    line: self.current.line,
+                    column: self.current.column,
+                })
+            }
+        };
+
+        self.advance()?; // consume ident
+        self.skip_ws()?;
+
+        self.expect(TokenKind::Dot)?;
+        self.skip_ws()?;
+
+        let property = match &self.current.kind {
+            TokenKind::Ident(s) => s.clone(),
+            _ => {
+                return Err(ParseError::UnexpectedToken {
+                    token: self.current.clone(),
+                    line: self.current.line,
+                    column: self.current.column,
+                })
+            }
+        };
+
+        self.advance()?; // consume property
+        self.skip_ws()?;
+
+        self.expect(TokenKind::Equal)?;
+        self.skip_ws()?;
+
+        let value = self.parse_expr()?;
+
+        Ok(Stmt::ObjectAssign {
+            object: Expr::Ident(obj_name),
+            property,
+            value,
+        })
     }
 
     fn parse_while(&mut self) -> Result<Stmt, ParseError> {
@@ -401,7 +498,7 @@ impl<'a> Parser<'a> {
                 }
                 TokenKind::Minus => {
                     self.advance()?;
-                    let right = self.parse_multiplicative()?; 
+                    let right = self.parse_multiplicative()?;
                     expr = Expr::Binary {
                         left: Box::new(expr),
                         op: BinaryOp::Minus,
@@ -463,15 +560,21 @@ impl<'a> Parser<'a> {
         }
     }
 
+    // ⭐ PRIMARY: identifiers, calls, indexing, literals, arrays, objects, properties
+
     fn parse_primary(&mut self) -> Result<Expr, ParseError> {
         self.skip_ws()?;
 
         match &self.current.kind {
+            // IDENT or CALL or INDEX or PROPERTY
             TokenKind::Ident(s) => {
                 let name = s.clone();
                 self.advance()?; // consume ident
 
                 self.skip_ws()?;
+                let mut expr = Expr::Ident(name);
+
+                // ⭐ Parse call: foo(...)
                 if self.current.kind == TokenKind::LParen {
                     self.advance()?; // consume '('
                     let mut args = Vec::new();
@@ -493,31 +596,149 @@ impl<'a> Parser<'a> {
                     }
 
                     self.expect(TokenKind::RParen)?;
-                    return Ok(Expr::Call {
-                        callee: Box::new(Expr::Ident(name)),
+                    expr = Expr::Call {
+                        callee: Box::new(expr),
                         args,
-                    });
+                    };
                 }
 
-                Ok(Expr::Ident(name))
+                // ⭐ Parse property access: foo.bar
+                loop {
+                    self.skip_ws()?;
+                    if self.current.kind == TokenKind::Dot {
+                        self.advance()?; // consume '.'
+                        self.skip_ws()?;
+
+                        let prop = match &self.current.kind {
+                            TokenKind::Ident(s) => s.clone(),
+                            _ => {
+                                return Err(ParseError::UnexpectedToken {
+                                    token: self.current.clone(),
+                                    line: self.current.line,
+                                    column: self.current.column,
+                                })
+                            }
+                        };
+
+                        self.advance()?; // consume property
+                        expr = Expr::Property {
+                            object: Box::new(expr),
+                            property: prop,
+                        };
+                        continue;
+                    }
+
+                    // ⭐ Parse indexing: foo[expr]
+                    if self.current.kind == TokenKind::LBracket {
+                        self.advance()?; // consume '['
+                        let index_expr = self.parse_expr()?;
+                        self.expect(TokenKind::RBracket)?;
+                        expr = Expr::Index {
+                            array: Box::new(expr),
+                            index: Box::new(index_expr),
+                        };
+                        continue;
+                    }
+
+                    break;
+                }
+
+                return Ok(expr);
             }
 
+            // NUMBER
             TokenKind::Number(n) => {
                 let v = *n;
                 self.advance()?;
-                Ok(Expr::Number(v))
+                return Ok(Expr::Number(v));
             }
+
+            // STRING
             TokenKind::String(s) => {
                 let v = s.clone();
                 self.advance()?;
-                Ok(Expr::String(v))
+                return Ok(Expr::String(v));
             }
+
+            // PAREN GROUPING
             TokenKind::LParen => {
                 self.advance()?;
                 let expr = self.parse_expr()?;
                 self.expect(TokenKind::RParen)?;
-                Ok(expr)
+                return Ok(expr);
             }
+
+                        // ⭐ ARRAY LITERAL: [expr, expr, ...]
+            TokenKind::LBracket => {
+                self.advance()?; // consume '['
+                let mut items = Vec::new();
+
+                self.skip_ws()?;
+                if self.current.kind != TokenKind::RBracket {
+                    loop {
+                        let item = self.parse_expr()?;
+                        items.push(item);
+                        self.skip_ws()?;
+                        if self.current.kind == TokenKind::Comma {
+                            self.advance()?;
+                            self.skip_ws()?;
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                self.expect(TokenKind::RBracket)?;
+                return Ok(Expr::Array(items));
+            }
+
+            // ⭐ OBJECT LITERAL: { key: value, key2: value }
+            TokenKind::LBrace => {
+                self.advance()?; // consume '{'
+                let mut fields = Vec::new();
+
+                self.skip_ws()?;
+                if self.current.kind != TokenKind::RBrace {
+                    loop {
+                        // key must be identifier
+                        let key = match &self.current.kind {
+                            TokenKind::Ident(s) => s.clone(),
+                            _ => {
+                                return Err(ParseError::UnexpectedToken {
+                                    token: self.current.clone(),
+                                    line: self.current.line,
+                                    column: self.current.column,
+                                })
+                            }
+                        };
+
+                        self.advance()?; // consume key
+                        self.skip_ws()?;
+
+                        // expect ':'
+                        self.expect(TokenKind::Colon)?;
+                        self.skip_ws()?;
+
+                        // parse value
+                        let value = self.parse_expr()?;
+                        fields.push((key, value));
+
+                        self.skip_ws()?;
+                        if self.current.kind == TokenKind::Comma {
+                            self.advance()?;
+                            self.skip_ws()?;
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                self.expect(TokenKind::RBrace)?;
+                return Ok(Expr::Object(fields));
+            }
+
             _ => Err(ParseError::UnexpectedToken {
                 token: self.current.clone(),
                 line: self.current.line,
@@ -526,3 +747,4 @@ impl<'a> Parser<'a> {
         }
     }
 }
+            

@@ -1,6 +1,6 @@
 ﻿fn main() {
-    print("Enter your name:")
-    let name = input()
-    print("Hello, " + name)
-    return 0
+    let user = { name: "Charles", age: 27 }
+    print(user.name)
+    user.age = 28
+    print(user)
 }

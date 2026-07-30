@@ -371,9 +371,31 @@ impl<'a> Lexer<'a> {
                     return Ok(self.make_token(TokenKind::RBrace));
                 }
 
+                // ⭐ ARRAY SUPPORT
+                '[' => {
+                    self.advance();
+                    return Ok(self.make_token(TokenKind::LBracket));
+                }
+                ']' => {
+                    self.advance();
+                    return Ok(self.make_token(TokenKind::RBracket));
+                }
+
                 ',' => {
                     self.advance();
                     return Ok(self.make_token(TokenKind::Comma));
+                }
+
+                // ⭐ NEW: OBJECT SUPPORT — colon
+                ':' => {
+                    self.advance();
+                    return Ok(self.make_token(TokenKind::Colon));
+                }
+
+                // ⭐ NEW: PROPERTY ACCESS — dot
+                '.' => {
+                    self.advance();
+                    return Ok(self.make_token(TokenKind::Dot));
                 }
 
                 '+' => {
