@@ -17,6 +17,9 @@ pub enum RuntimeError {
 
     #[error("Type error: {0}")]
     TypeError(String),
+
+    #[error("Assertion failed: {0}")]
+    AssertionFailed(String),
 }
 
 #[derive(Debug)]
@@ -51,6 +54,29 @@ impl Interpreter {
                     .unwrap()
                     .as_secs_f64();
                 Ok(Value::Number(now))
+            }),
+        );
+
+        // ⭐ Native assert()
+        env.define(
+            "assert".into(),
+            Value::NativeFunction(|args| {
+                if args.len() != 1 {
+                    return Err(RuntimeError::TypeError(
+                        "assert() takes exactly one argument".into(),
+                    ));
+                }
+
+                match &args[0] {
+                    Value::Bool(true) => Ok(Value::Null),
+                    Value::Bool(false) => Err(RuntimeError::AssertionFailed(
+                        "expected true, got false".into(),
+                    )),
+                    other => Err(RuntimeError::TypeError(format!(
+                        "assert() requires a boolean, got {:?}",
+                        other
+                    ))),
+                }
             }),
         );
 

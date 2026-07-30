@@ -1,5 +1,7 @@
 ﻿fn main() {
-    print("Current time:")
-    print(clock())
+    assert(1 + 1 == 2)
+    assert(clock() > 0)
+    assert("hi" == "hi")
+    print("All assertions passed!")
     return 0
 }
