@@ -1,9 +1,13 @@
 ﻿fn main {
-    let x = 10
+    let x = 0
 
-    if x > 5 {
-        return "big"
+    while x < 5 {
+        let x = x + 1
+    }
+
+    if x == 5 {
+        return "ok"
     } else {
-        return "small"
+        return "fail"
     }
 }

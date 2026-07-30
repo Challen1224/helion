@@ -1,13 +1,13 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum TokenKind {
     // Keywords
-    Fn,
-    Let,
-    Const,
+    KeywordFn,
+    KeywordLet,
+    KeywordConst,
+    KeywordReturn,
     KeywordIf,
     KeywordElse,
-    While,
-    Return,
+    KeywordWhile,
 
     // Identifiers & literals
     Ident(String),
@@ -27,12 +27,6 @@ pub enum TokenKind {
     LessEqual,
     Greater,
     GreaterEqual,
-
-    // Keywords
-    KeywordFn,
-    KeywordLet,
-    KeywordConst,
-    KeywordReturn,
 
     // Punctuation
     LParen,

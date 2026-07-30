@@ -84,6 +84,7 @@ impl<'a> Lexer<'a> {
             "return" => TokenKind::KeywordReturn,
             "if" => TokenKind::KeywordIf,
             "else" => TokenKind::KeywordElse,
+            "while" => TokenKind::KeywordWhile,
             _ => TokenKind::Ident(ident),
         };
 

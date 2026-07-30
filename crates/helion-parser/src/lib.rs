@@ -36,7 +36,16 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
+    // Your lexer only emits semicolons as "noise".
+    fn skip_ws(&mut self) -> Result<(), ParseError> {
+        while self.current.kind == TokenKind::Semicolon {
+            self.advance()?;
+        }
+        Ok(())
+    }
+
     fn expect(&mut self, kind: TokenKind) -> Result<(), ParseError> {
+        self.skip_ws()?;
         if self.current.kind == kind {
             self.advance()
         } else {
@@ -55,14 +64,19 @@ impl<'a> Parser<'a> {
     pub fn parse_program(&mut self) -> Result<Program, ParseError> {
         let mut stmts = Vec::new();
 
+        self.skip_ws()?;
+
         while self.current.kind != TokenKind::Eof {
             stmts.push(self.parse_top_level()?);
+            self.skip_ws()?;
         }
 
         Ok(Program { stmts })
     }
 
     fn parse_top_level(&mut self) -> Result<Stmt, ParseError> {
+        self.skip_ws()?;
+
         match self.current.kind {
             TokenKind::KeywordFn => self.parse_function(),
             TokenKind::KeywordLet => self.parse_let(),
@@ -77,8 +91,8 @@ impl<'a> Parser<'a> {
     // ============================================
 
     fn parse_function(&mut self) -> Result<Stmt, ParseError> {
-        // fn <ident> { <block> }
         self.advance()?; // consume "fn"
+        self.skip_ws()?;
 
         let name = match &self.current.kind {
             TokenKind::Ident(s) => {
@@ -95,6 +109,7 @@ impl<'a> Parser<'a> {
             }
         };
 
+        self.skip_ws()?;
         let body = self.parse_block()?;
 
         Ok(Stmt::Function {
@@ -108,16 +123,18 @@ impl<'a> Parser<'a> {
     // ============================================
 
     fn parse_block(&mut self) -> Result<Stmt, ParseError> {
+        self.skip_ws()?;
         self.expect(TokenKind::LBrace)?;
 
         let mut stmts = Vec::new();
+        self.skip_ws()?;
 
         while self.current.kind != TokenKind::RBrace && self.current.kind != TokenKind::Eof {
             stmts.push(self.parse_stmt()?);
+            self.skip_ws()?;
         }
 
         self.expect(TokenKind::RBrace)?;
-
         Ok(Stmt::Block { stmts })
     }
 
@@ -126,9 +143,12 @@ impl<'a> Parser<'a> {
     // ============================================
 
     fn parse_stmt(&mut self) -> Result<Stmt, ParseError> {
+        self.skip_ws()?;
+
         match self.current.kind {
             TokenKind::KeywordLet => self.parse_let(),
             TokenKind::KeywordReturn => self.parse_return(),
+            TokenKind::KeywordWhile => self.parse_while(),
             TokenKind::KeywordIf => self.parse_if(),
             TokenKind::LBrace => self.parse_block(),
             _ => {
@@ -138,19 +158,34 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_if(&mut self) -> Result<Stmt, ParseError> {
-        // consume "if"
-        self.advance()?;
+    fn parse_while(&mut self) -> Result<Stmt, ParseError> {
+        self.advance()?; // consume "while"
+        self.skip_ws()?;
 
-        // parse condition expression
         let condition = self.parse_expr()?;
+        self.skip_ws()?;
 
-        // parse then-block
+        let body = self.parse_block()?;
+
+        Ok(Stmt::While {
+            condition,
+            body: Box::new(body),
+        })
+    }
+
+    fn parse_if(&mut self) -> Result<Stmt, ParseError> {
+        self.advance()?; // consume "if"
+        self.skip_ws()?;
+
+        let condition = self.parse_expr()?;
+        self.skip_ws()?;
+
         let then_branch = self.parse_block()?;
+        self.skip_ws()?;
 
-        // optional else
         let else_branch = if self.current.kind == TokenKind::KeywordElse {
             self.advance()?; // consume "else"
+            self.skip_ws()?;
             Some(Box::new(self.parse_block()?))
         } else {
             None
@@ -165,6 +200,7 @@ impl<'a> Parser<'a> {
 
     fn parse_let(&mut self) -> Result<Stmt, ParseError> {
         self.advance()?; // consume 'let'
+        self.skip_ws()?;
 
         let name = match &self.current.kind {
             TokenKind::Ident(s) => {
@@ -181,8 +217,10 @@ impl<'a> Parser<'a> {
             }
         };
 
+        self.skip_ws()?;
         self.expect(TokenKind::Equal)?;
 
+        self.skip_ws()?;
         let value = self.parse_expr()?;
 
         Ok(Stmt::Let { name, value })
@@ -190,15 +228,18 @@ impl<'a> Parser<'a> {
 
     fn parse_return(&mut self) -> Result<Stmt, ParseError> {
         self.advance()?; // consume 'return'
+        self.skip_ws()?;
+
         let value = self.parse_expr()?;
         Ok(Stmt::Return { value })
     }
 
     // ============================================
-    // EXPRESSIONS (your full expression parser)
+    // EXPRESSIONS
     // ============================================
 
     pub fn parse_expr(&mut self) -> Result<Expr, ParseError> {
+        self.skip_ws()?;
         self.parse_equality()
     }
 
@@ -341,6 +382,8 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_unary(&mut self) -> Result<Expr, ParseError> {
+        self.skip_ws()?;
+
         match self.current.kind {
             TokenKind::Minus => {
                 self.advance()?;
@@ -357,6 +400,8 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_primary(&mut self) -> Result<Expr, ParseError> {
+        self.skip_ws()?;
+
         match &self.current.kind {
             TokenKind::Ident(s) => {
                 let name = s.clone();

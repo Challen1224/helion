@@ -1,4 +1,4 @@
-use helion_ast::{Program, Stmt, Expr, BinaryOp};
+use helion_ast::{BinaryOp, Expr, Program, Stmt};
 use thiserror::Error;
 
 mod env;
@@ -19,6 +19,12 @@ pub enum RuntimeError {
     TypeError(String),
 }
 
+#[derive(Debug)]
+enum ExecResult {
+    Value(Value),
+    Return(Value),
+}
+
 pub struct Interpreter;
 
 impl Interpreter {
@@ -36,42 +42,68 @@ impl Interpreter {
             _ => return Err(RuntimeError::UndefinedVariable("main".into())),
         };
 
-        self.exec_stmt(&mut env, main)
+        match self.exec_stmt(&mut env, main)? {
+            ExecResult::Return(v) => Ok(v),
+            ExecResult::Value(v) => Ok(v),
+        }
     }
 
-    fn exec_stmt(&self, env: &mut Env, stmt: &Stmt) -> Result<Value, RuntimeError> {
+    fn exec_stmt(&self, env: &mut Env, stmt: &Stmt) -> Result<ExecResult, RuntimeError> {
         match stmt {
             Stmt::Let { name, value } => {
                 let v = self.eval_expr(env, value)?;
                 env.define(name.clone(), v);
-                Ok(Value::Null)
+                Ok(ExecResult::Value(Value::Null))
             }
 
             Stmt::Return { value } => {
                 let v = self.eval_expr(env, value)?;
-                Ok(v)
+                Ok(ExecResult::Return(v))
             }
 
             Stmt::ExprStmt { expr } => {
                 let v = self.eval_expr(env, expr)?;
-                Ok(v)
+                Ok(ExecResult::Value(v))
             }
 
+            Stmt::While { condition, body } => {
+                loop {
+                    let cond = self.eval_expr(env, condition)?;
+
+                    match cond {
+                        Value::Bool(true) => {
+                            match self.exec_stmt(env, body)? {
+                                ExecResult::Return(v) => return Ok(ExecResult::Return(v)),
+                                ExecResult::Value(_) => {}
+                            }
+                        }
+                        Value::Bool(false) => break,
+                        _ => {
+                            return Err(RuntimeError::TypeError(
+                                "while condition must be boolean".into(),
+                            ))
+                        }
+                    }
+                }
+
+                Ok(ExecResult::Value(Value::Null))
+            }
+
+            // IMPORTANT: no child env here; use the same env so x actually updates
             Stmt::Block { stmts } => {
-                let mut child = env.child();
                 let mut last = Value::Null;
 
                 for stmt in stmts {
-                    last = self.exec_stmt(&mut child, stmt)?;
+                    match self.exec_stmt(env, stmt)? {
+                        ExecResult::Return(v) => return Ok(ExecResult::Return(v)),
+                        ExecResult::Value(v) => last = v,
+                    }
                 }
 
-                Ok(last)
+                Ok(ExecResult::Value(last))
             }
 
-            Stmt::Function { .. } => {
-                // Functions only run at top level for now
-                Ok(Value::Null)
-            }
+            Stmt::Function { .. } => Ok(ExecResult::Value(Value::Null)),
 
             Stmt::If {
                 condition,
@@ -86,7 +118,7 @@ impl Interpreter {
                         if let Some(else_branch) = else_branch {
                             self.exec_stmt(env, else_branch)
                         } else {
-                            Ok(Value::Null)
+                            Ok(ExecResult::Value(Value::Null))
                         }
                     }
                     _ => Err(RuntimeError::TypeError(
@@ -99,10 +131,9 @@ impl Interpreter {
 
     fn eval_expr(&self, env: &Env, expr: &Expr) -> Result<Value, RuntimeError> {
         match expr {
-            Expr::Ident(name) => {
-                env.get(name)
-                    .ok_or_else(|| RuntimeError::UndefinedVariable(name.clone()))
-            }
+            Expr::Ident(name) => env
+                .get(name)
+                .ok_or_else(|| RuntimeError::UndefinedVariable(name.clone())),
 
             Expr::Number(n) => Ok(Value::Number(*n)),
             Expr::String(s) => Ok(Value::String(s.clone())),
@@ -111,9 +142,7 @@ impl Interpreter {
                 let v = self.eval_expr(env, inner)?;
                 match v {
                     Value::Number(n) => Ok(Value::Number(-n)),
-                    _ => Err(RuntimeError::TypeError(
-                        "Unary minus on non-number".into(),
-                    )),
+                    _ => Err(RuntimeError::TypeError("Unary minus on non-number".into())),
                 }
             }
 
@@ -121,9 +150,7 @@ impl Interpreter {
                 let v = self.eval_expr(env, inner)?;
                 match v {
                     Value::Bool(b) => Ok(Value::Bool(!b)),
-                    _ => Err(RuntimeError::TypeError(
-                        "Unary ! on non-bool".into(),
-                    )),
+                    _ => Err(RuntimeError::TypeError("Unary ! on non-bool".into())),
                 }
             }
 
@@ -168,16 +195,10 @@ impl Interpreter {
         }
     }
 
-    fn cmp<F: Fn(f64, f64) -> bool>(
-        l: Value,
-        r: Value,
-        f: F,
-    ) -> Result<Value, RuntimeError> {
+    fn cmp<F: Fn(f64, f64) -> bool>(l: Value, r: Value, f: F) -> Result<Value, RuntimeError> {
         match (l, r) {
             (Value::Number(a), Value::Number(b)) => Ok(Value::Bool(f(a, b))),
-            _ => Err(RuntimeError::TypeError(
-                "Comparison on non-numbers".into(),
-            )),
+            _ => Err(RuntimeError::TypeError("Comparison on non-numbers".into())),
         }
     }
 
