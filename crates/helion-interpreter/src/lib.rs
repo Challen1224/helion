@@ -31,7 +31,30 @@ impl Interpreter {
     pub fn run(&self, program: &Program) -> Result<Value, RuntimeError> {
         let mut env = Env::new();
 
-        // Register all functions in the environment
+        // ⭐ Native print()
+        env.define(
+            "print".into(),
+            Value::NativeFunction(|args| {
+                for arg in args {
+                    println!("{:?}", arg);
+                }
+                Ok(Value::Null)
+            }),
+        );
+
+        // ⭐ Native clock()
+        env.define(
+            "clock".into(),
+            Value::NativeFunction(|_args| {
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_secs_f64();
+                Ok(Value::Number(now))
+            }),
+        );
+
+        // Register all user-defined functions
         for stmt in &program.stmts {
             if let Stmt::Function { name, params, body } = stmt {
                 env.define(
@@ -65,14 +88,12 @@ impl Interpreter {
             return Err(RuntimeError::TypeError("argument count mismatch".into()));
         }
 
-        // New local environment for the function call
         let mut local = env.child();
 
         for (name, value) in func.params.iter().zip(args.into_iter()) {
             local.define(name.clone(), value);
         }
 
-        // IMPORTANT: dereference Box<Stmt> to &Stmt
         match self.exec_stmt(&mut local, &*func.body)? {
             ExecResult::Return(v) => Ok(v),
             ExecResult::Value(v) => Ok(v),
@@ -126,7 +147,6 @@ impl Interpreter {
                 Ok(ExecResult::Value(Value::Null))
             }
 
-            // Block uses same env so variables update correctly
             Stmt::Block { stmts } => {
                 let mut last = Value::Null;
 
@@ -140,7 +160,6 @@ impl Interpreter {
                 Ok(ExecResult::Value(last))
             }
 
-            // Function declarations are handled in run(), so at exec time they do nothing
             Stmt::Function { .. } => Ok(ExecResult::Value(Value::Null)),
 
             Stmt::If {
@@ -210,6 +229,10 @@ impl Interpreter {
                         let mut env_clone = env.clone();
                         self.call_function(&mut env_clone, &f, arg_vals)
                     }
+
+                    // ⭐ Native function support
+                    Value::NativeFunction(func) => func(arg_vals),
+
                     _ => Err(RuntimeError::TypeError("call on non-function".into())),
                 }
             }
