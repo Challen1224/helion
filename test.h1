@@ -1,7 +1,7 @@
 ﻿fn main() {
-    assert(1 + 1 == 2)
-    assert(clock() > 0)
-    assert("hi" == "hi")
-    print("All assertions passed!")
+    print(to_string(123))
+    print(to_string(3.14))
+    print(to_string(true))
+    print("The time is " + to_string(clock()))
     return 0
 }

@@ -34,7 +34,7 @@ impl Interpreter {
     pub fn run(&self, program: &Program) -> Result<Value, RuntimeError> {
         let mut env = Env::new();
 
-        // ⭐ Native print()
+        // Native print()
         env.define(
             "print".into(),
             Value::NativeFunction(|args| {
@@ -45,7 +45,7 @@ impl Interpreter {
             }),
         );
 
-        // ⭐ Native clock()
+        // Native clock()
         env.define(
             "clock".into(),
             Value::NativeFunction(|_args| {
@@ -57,7 +57,7 @@ impl Interpreter {
             }),
         );
 
-        // ⭐ Native assert()
+        // Native assert()
         env.define(
             "assert".into(),
             Value::NativeFunction(|args| {
@@ -80,7 +80,30 @@ impl Interpreter {
             }),
         );
 
-        // Register all user-defined functions
+        // Native to_string()
+        env.define(
+            "to_string".into(),
+            Value::NativeFunction(|args| {
+                if args.len() != 1 {
+                    return Err(RuntimeError::TypeError(
+                        "to_string() takes exactly one argument".into(),
+                    ));
+                }
+
+                let s = match &args[0] {
+                    Value::Number(n) => n.to_string(),
+                    Value::String(st) => st.clone(),
+                    Value::Bool(b) => b.to_string(),
+                    Value::Null => "null".into(),
+                    Value::Function(_) => "<function>".into(),
+                    Value::NativeFunction(_) => "<native function>".into(),
+                };
+
+                Ok(Value::String(s))
+            }),
+        );
+
+        // Register user-defined functions
         for stmt in &program.stmts {
             if let Stmt::Function { name, params, body } = stmt {
                 env.define(
@@ -214,9 +237,18 @@ impl Interpreter {
 
     fn eval_expr(&self, env: &Env, expr: &Expr) -> Result<Value, RuntimeError> {
         match expr {
-            Expr::Ident(name) => env
-                .get(name)
-                .ok_or_else(|| RuntimeError::UndefinedVariable(name.clone())),
+            Expr::Ident(name) => {
+                // ⭐ Boolean literal support
+                if name == "true" {
+                    return Ok(Value::Bool(true));
+                }
+                if name == "false" {
+                    return Ok(Value::Bool(false));
+                }
+
+                env.get(name)
+                    .ok_or_else(|| RuntimeError::UndefinedVariable(name.clone()))
+            }
 
             Expr::Number(n) => Ok(Value::Number(*n)),
             Expr::String(s) => Ok(Value::String(s.clone())),
@@ -256,7 +288,6 @@ impl Interpreter {
                         self.call_function(&mut env_clone, &f, arg_vals)
                     }
 
-                    // ⭐ Native function support
                     Value::NativeFunction(func) => func(arg_vals),
 
                     _ => Err(RuntimeError::TypeError("call on non-function".into())),
