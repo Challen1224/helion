@@ -34,7 +34,7 @@ impl Interpreter {
     pub fn run(&self, program: &Program) -> Result<Value, RuntimeError> {
         let mut env = Env::new();
 
-        // Native print()
+        // ⭐ Native print()
         env.define(
             "print".into(),
             Value::NativeFunction(|args| {
@@ -45,7 +45,7 @@ impl Interpreter {
             }),
         );
 
-        // Native clock()
+        // ⭐ Native clock()
         env.define(
             "clock".into(),
             Value::NativeFunction(|_args| {
@@ -57,7 +57,7 @@ impl Interpreter {
             }),
         );
 
-        // Native assert()
+        // ⭐ Native assert()
         env.define(
             "assert".into(),
             Value::NativeFunction(|args| {
@@ -80,7 +80,7 @@ impl Interpreter {
             }),
         );
 
-        // Native to_string()
+        // ⭐ Native to_string()
         env.define(
             "to_string".into(),
             Value::NativeFunction(|args| {
@@ -100,6 +100,21 @@ impl Interpreter {
                 };
 
                 Ok(Value::String(s))
+            }),
+        );
+
+        // ⭐ Native input()
+        env.define(
+            "input".into(),
+            Value::NativeFunction(|_args| {
+                use std::io::{self, Write};
+
+                io::stdout().flush().unwrap();
+
+                let mut buffer = String::new();
+                io::stdin().read_line(&mut buffer).unwrap();
+
+                Ok(Value::String(buffer.trim().to_string()))
             }),
         );
 
