@@ -36,7 +36,6 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
-    // Your lexer only emits semicolons as "noise".
     fn skip_ws(&mut self) -> Result<(), ParseError> {
         while self.current.kind == TokenKind::Semicolon {
             self.advance()?;
@@ -57,9 +56,12 @@ impl<'a> Parser<'a> {
         }
     }
 
-    // ============================================
+    fn peek_next_is(&mut self, kind: TokenKind) -> Result<bool, ParseError> {
+        let tok = self.lexer.peek_token()?;
+        Ok(tok.kind == kind)
+    }
+
     // PROGRAM
-    // ============================================
 
     pub fn parse_program(&mut self) -> Result<Program, ParseError> {
         let mut stmts = Vec::new();
@@ -86,9 +88,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    // ============================================
     // FUNCTIONS
-    // ============================================
 
     fn parse_function(&mut self) -> Result<Stmt, ParseError> {
         self.advance()?; // consume "fn"
@@ -110,17 +110,51 @@ impl<'a> Parser<'a> {
         };
 
         self.skip_ws()?;
+        self.expect(TokenKind::LParen)?;
+
+        let mut params = Vec::new();
+
+        self.skip_ws()?;
+        if self.current.kind != TokenKind::RParen {
+            loop {
+                match &self.current.kind {
+                    TokenKind::Ident(s) => {
+                        params.push(s.clone());
+                        self.advance()?;
+                    }
+                    _ => {
+                        return Err(ParseError::UnexpectedToken {
+                            token: self.current.clone(),
+                            line: self.current.line,
+                            column: self.current.column,
+                        })
+                    }
+                }
+
+                self.skip_ws()?;
+                if self.current.kind == TokenKind::Comma {
+                    self.advance()?;
+                    self.skip_ws()?;
+                    continue;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        self.expect(TokenKind::RParen)?;
+        self.skip_ws()?;
+
         let body = self.parse_block()?;
 
         Ok(Stmt::Function {
             name,
+            params,
             body: Box::new(body),
         })
     }
 
-    // ============================================
     // BLOCKS
-    // ============================================
 
     fn parse_block(&mut self) -> Result<Stmt, ParseError> {
         self.skip_ws()?;
@@ -138,9 +172,7 @@ impl<'a> Parser<'a> {
         Ok(Stmt::Block { stmts })
     }
 
-    // ============================================
     // STATEMENTS
-    // ============================================
 
     fn parse_stmt(&mut self) -> Result<Stmt, ParseError> {
         self.skip_ws()?;
@@ -151,11 +183,45 @@ impl<'a> Parser<'a> {
             TokenKind::KeywordWhile => self.parse_while(),
             TokenKind::KeywordIf => self.parse_if(),
             TokenKind::LBrace => self.parse_block(),
+
+            TokenKind::Ident(_) => {
+                if self.peek_next_is(TokenKind::Equal)? {
+                    return self.parse_assign();
+                }
+                let expr = self.parse_expr()?;
+                Ok(Stmt::ExprStmt { expr })
+            }
+
             _ => {
                 let expr = self.parse_expr()?;
                 Ok(Stmt::ExprStmt { expr })
             }
         }
+    }
+
+    fn parse_assign(&mut self) -> Result<Stmt, ParseError> {
+        let name = match &self.current.kind {
+            TokenKind::Ident(s) => {
+                let n = s.clone();
+                self.advance()?;
+                n
+            }
+            _ => {
+                return Err(ParseError::UnexpectedToken {
+                    token: self.current.clone(),
+                    line: self.current.line,
+                    column: self.current.column,
+                })
+            }
+        };
+
+        self.skip_ws()?;
+        self.expect(TokenKind::Equal)?;
+        self.skip_ws()?;
+
+        let value = self.parse_expr()?;
+
+        Ok(Stmt::Assign { name, value })
     }
 
     fn parse_while(&mut self) -> Result<Stmt, ParseError> {
@@ -234,9 +300,7 @@ impl<'a> Parser<'a> {
         Ok(Stmt::Return { value })
     }
 
-    // ============================================
     // EXPRESSIONS
-    // ============================================
 
     pub fn parse_expr(&mut self) -> Result<Expr, ParseError> {
         self.skip_ws()?;
@@ -337,7 +401,7 @@ impl<'a> Parser<'a> {
                 }
                 TokenKind::Minus => {
                     self.advance()?;
-                    let right = self.parse_multiplicative()?;
+                    let right = self.parse_multiplicative()?; 
                     expr = Expr::Binary {
                         left: Box::new(expr),
                         op: BinaryOp::Minus,
@@ -405,9 +469,39 @@ impl<'a> Parser<'a> {
         match &self.current.kind {
             TokenKind::Ident(s) => {
                 let name = s.clone();
-                self.advance()?;
+                self.advance()?; // consume ident
+
+                self.skip_ws()?;
+                if self.current.kind == TokenKind::LParen {
+                    self.advance()?; // consume '('
+                    let mut args = Vec::new();
+
+                    self.skip_ws()?;
+                    if self.current.kind != TokenKind::RParen {
+                        loop {
+                            let arg = self.parse_expr()?;
+                            args.push(arg);
+                            self.skip_ws()?;
+                            if self.current.kind == TokenKind::Comma {
+                                self.advance()?;
+                                self.skip_ws()?;
+                                continue;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    self.expect(TokenKind::RParen)?;
+                    return Ok(Expr::Call {
+                        callee: Box::new(Expr::Ident(name)),
+                        args,
+                    });
+                }
+
                 Ok(Expr::Ident(name))
             }
+
             TokenKind::Number(n) => {
                 let v = *n;
                 self.advance()?;

@@ -1,4 +1,4 @@
-use helion_ast::{BinaryOp, Expr, Program, Stmt};
+use helion_ast::{BinaryOp, Expr, FunctionValue, Program, Stmt};
 use thiserror::Error;
 
 mod env;
@@ -31,18 +31,49 @@ impl Interpreter {
     pub fn run(&self, program: &Program) -> Result<Value, RuntimeError> {
         let mut env = Env::new();
 
-        // Find main function
-        let main = program.stmts.iter().find(|stmt| match stmt {
-            Stmt::Function { name, .. } => name == "main",
-            _ => false,
-        });
+        // Register all functions in the environment
+        for stmt in &program.stmts {
+            if let Stmt::Function { name, params, body } = stmt {
+                env.define(
+                    name.clone(),
+                    Value::Function(FunctionValue {
+                        params: params.clone(),
+                        body: body.clone(),
+                    }),
+                );
+            }
+        }
 
-        let main = match main {
-            Some(Stmt::Function { body, .. }) => body,
-            _ => return Err(RuntimeError::UndefinedVariable("main".into())),
-        };
+        // Look up main()
+        let main_val = env
+            .get("main")
+            .ok_or_else(|| RuntimeError::UndefinedVariable("main".into()))?;
 
-        match self.exec_stmt(&mut env, main)? {
+        match main_val {
+            Value::Function(f) => self.call_function(&mut env, &f, Vec::new()),
+            _ => Err(RuntimeError::TypeError("main is not a function".into())),
+        }
+    }
+
+    fn call_function(
+        &self,
+        env: &mut Env,
+        func: &FunctionValue,
+        args: Vec<Value>,
+    ) -> Result<Value, RuntimeError> {
+        if args.len() != func.params.len() {
+            return Err(RuntimeError::TypeError("argument count mismatch".into()));
+        }
+
+        // New local environment for the function call
+        let mut local = env.child();
+
+        for (name, value) in func.params.iter().zip(args.into_iter()) {
+            local.define(name.clone(), value);
+        }
+
+        // IMPORTANT: dereference Box<Stmt> to &Stmt
+        match self.exec_stmt(&mut local, &*func.body)? {
             ExecResult::Return(v) => Ok(v),
             ExecResult::Value(v) => Ok(v),
         }
@@ -53,6 +84,14 @@ impl Interpreter {
             Stmt::Let { name, value } => {
                 let v = self.eval_expr(env, value)?;
                 env.define(name.clone(), v);
+                Ok(ExecResult::Value(Value::Null))
+            }
+
+            Stmt::Assign { name, value } => {
+                let v = self.eval_expr(env, value)?;
+                if !env.set(name, v) {
+                    return Err(RuntimeError::UndefinedVariable(name.clone()));
+                }
                 Ok(ExecResult::Value(Value::Null))
             }
 
@@ -71,12 +110,10 @@ impl Interpreter {
                     let cond = self.eval_expr(env, condition)?;
 
                     match cond {
-                        Value::Bool(true) => {
-                            match self.exec_stmt(env, body)? {
-                                ExecResult::Return(v) => return Ok(ExecResult::Return(v)),
-                                ExecResult::Value(_) => {}
-                            }
-                        }
+                        Value::Bool(true) => match self.exec_stmt(env, body)? {
+                            ExecResult::Return(v) => return Ok(ExecResult::Return(v)),
+                            ExecResult::Value(_) => {}
+                        },
                         Value::Bool(false) => break,
                         _ => {
                             return Err(RuntimeError::TypeError(
@@ -89,7 +126,7 @@ impl Interpreter {
                 Ok(ExecResult::Value(Value::Null))
             }
 
-            // IMPORTANT: no child env here; use the same env so x actually updates
+            // Block uses same env so variables update correctly
             Stmt::Block { stmts } => {
                 let mut last = Value::Null;
 
@@ -103,6 +140,7 @@ impl Interpreter {
                 Ok(ExecResult::Value(last))
             }
 
+            // Function declarations are handled in run(), so at exec time they do nothing
             Stmt::Function { .. } => Ok(ExecResult::Value(Value::Null)),
 
             Stmt::If {
@@ -158,6 +196,22 @@ impl Interpreter {
                 let l = self.eval_expr(env, left)?;
                 let r = self.eval_expr(env, right)?;
                 self.eval_binary(l, *op, r)
+            }
+
+            Expr::Call { callee, args } => {
+                let callee_val = self.eval_expr(env, callee)?;
+                let mut arg_vals = Vec::new();
+                for a in args {
+                    arg_vals.push(self.eval_expr(env, a)?);
+                }
+
+                match callee_val {
+                    Value::Function(f) => {
+                        let mut env_clone = env.clone();
+                        self.call_function(&mut env_clone, &f, arg_vals)
+                    }
+                    _ => Err(RuntimeError::TypeError("call on non-function".into())),
+                }
             }
         }
     }

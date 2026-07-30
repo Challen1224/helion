@@ -15,8 +15,7 @@ impl Env {
         }
     }
 
-    // FIX: child must reference the SAME environment, not a clone
-    pub fn child(&mut self) -> Self {
+    pub fn child(&self) -> Self {
         Self {
             parent: Some(Box::new(self.clone())),
             vars: HashMap::new(),
@@ -24,21 +23,20 @@ impl Env {
     }
 
     pub fn define(&mut self, name: String, value: Value) {
-        // FIX: assign to existing variable in parent if it exists
-        if self.vars.contains_key(&name) {
-            self.vars.insert(name, value);
-            return;
-        }
+        self.vars.insert(name, value);
+    }
 
+    pub fn set(&mut self, name: &str, value: Value) -> bool {
+        if self.vars.contains_key(name) {
+            self.vars.insert(name.to_string(), value);
+            return true;
+        }
         if let Some(parent) = &mut self.parent {
-            if parent.vars.contains_key(&name) {
-                parent.vars.insert(name.clone(), value);
-                return;
+            if parent.set(name, value.clone()) {
+                return true;
             }
         }
-
-        // Otherwise define locally
-        self.vars.insert(name, value);
+        false
     }
 
     pub fn get(&self, name: &str) -> Option<Value> {

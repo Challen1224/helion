@@ -36,11 +36,11 @@ pub enum TokenKind {
     Comma,
     Semicolon,
 
-    // Special
+    // End of file
     Eof,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct Token {
     pub kind: TokenKind,
     pub line: usize,

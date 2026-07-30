@@ -4,11 +4,7 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum LexError {
     #[error("Unexpected character '{ch}' at {line}:{column}")]
-    UnexpectedChar {
-        ch: char,
-        line: usize,
-        column: usize,
-    },
+    UnexpectedChar { ch: char, line: usize, column: usize },
 
     #[error("Invalid number literal at {line}:{column}")]
     InvalidNumber { line: usize, column: usize },
@@ -20,6 +16,7 @@ pub enum LexError {
     UnterminatedComment { line: usize, column: usize },
 }
 
+#[derive(Clone)]
 pub struct Lexer<'a> {
     chars: std::str::Chars<'a>,
     current: Option<char>,
@@ -61,6 +58,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    // IDENTIFIERS & KEYWORDS
     fn lex_identifier(&mut self) -> Token {
         let start_line = self.line;
         let start_col = self.column;
@@ -95,6 +93,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    // NUMBERS
     fn lex_number(&mut self) -> Result<Token, LexError> {
         let start_line = self.line;
         let start_col = self.column;
@@ -130,6 +129,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    // OPERATORS
     fn lex_operator(&mut self) -> Result<Token, LexError> {
         let start_line = self.line;
         let start_col = self.column;
@@ -211,6 +211,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    // STRINGS
     fn lex_string(&mut self) -> Result<Token, LexError> {
         let start_line = self.line;
         let start_col = self.column;
@@ -277,12 +278,11 @@ impl<'a> Lexer<'a> {
         })
     }
 
+    // COMMENTS
     fn lex_comment(&mut self) -> Result<(), LexError> {
-        // We already know current == '/'
         self.advance();
 
         match self.current {
-            // Single-line comment: //
             Some('/') => {
                 while let Some(c) = self.current {
                     self.advance();
@@ -293,7 +293,6 @@ impl<'a> Lexer<'a> {
                 Ok(())
             }
 
-            // Multi-line comment: /* ... */
             Some('*') => {
                 self.advance();
                 while let Some(c) = self.current {
@@ -314,11 +313,11 @@ impl<'a> Lexer<'a> {
                 })
             }
 
-            // Just a slash operator
             _ => Ok(()),
         }
     }
 
+    // MAIN TOKENIZER
     pub fn next_token(&mut self) -> Result<Token, LexError> {
         while let Some(c) = self.current {
             match c {
@@ -336,11 +335,9 @@ impl<'a> Lexer<'a> {
                 '=' | '!' | '<' | '>' => return self.lex_operator(),
 
                 '/' => {
-                    // Could be comment or slash operator
                     let start_line = self.line;
                     let start_col = self.column;
 
-                    // Peek next char
                     let mut clone = self.chars.clone();
                     let next = clone.next();
 
@@ -373,6 +370,12 @@ impl<'a> Lexer<'a> {
                     self.advance();
                     return Ok(self.make_token(TokenKind::RBrace));
                 }
+
+                ',' => {
+                    self.advance();
+                    return Ok(self.make_token(TokenKind::Comma));
+                }
+
                 '+' => {
                     self.advance();
                     return Ok(self.make_token(TokenKind::Plus));
@@ -397,5 +400,10 @@ impl<'a> Lexer<'a> {
         }
 
         Ok(self.make_token(TokenKind::Eof))
+    }
+
+    pub fn peek_token(&mut self) -> Result<Token, LexError> {
+        let mut clone = self.clone();
+        clone.next_token()
     }
 }

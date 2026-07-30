@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     Ident(String),
     Number(f64),
@@ -12,30 +12,34 @@ pub enum Expr {
         op: BinaryOp,
         right: Box<Expr>,
     },
+
+    Call {
+        callee: Box<Expr>,
+        args: Vec<Expr>,
+    },
 }
 
 #[derive(Debug, Clone, Copy)]
 pub enum BinaryOp {
-    // Arithmetic
     Plus,
     Minus,
     Star,
     Slash,
-
-    // Comparison
     Less,
     LessEqual,
     Greater,
     GreaterEqual,
-
-    // Equality
     EqualEqual,
     BangEqual,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Stmt {
     Let {
+        name: String,
+        value: Expr,
+    },
+    Assign {
         name: String,
         value: Expr,
     },
@@ -50,6 +54,7 @@ pub enum Stmt {
     },
     Function {
         name: String,
+        params: Vec<String>,
         body: Box<Stmt>,
     },
     If {
@@ -63,7 +68,13 @@ pub enum Stmt {
     },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+pub struct FunctionValue {
+    pub params: Vec<String>,
+    pub body: Box<Stmt>,
+}
+
+#[derive(Debug, Clone)]
 pub struct Program {
     pub stmts: Vec<Stmt>,
 }
